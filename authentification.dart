@@ -16,7 +16,7 @@ Future<String> SignIn(String email , Sting password) async
   return user.uid ;
 }
 // Methode pour le Signup //
-Future<String> SignUp(String email , Sting passworf) async 
+Future<String> SignUp(String email , Sting password) async 
 {
   FirebaseUser user = await _firebaseAuth.createUserWithEmailAndPassword( email : email , password :password ); 
   return user.uid ;
