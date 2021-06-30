@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-
+import 'package:prof_sport/models/AuthImplementation.dart';
 void main () async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -52,6 +52,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
   Color col_main= Colors.blueAccent;
+  String email="";
+  String password="";
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -92,16 +94,35 @@ class _MyHomePageState extends State<MyHomePage> {
               TextField(keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(prefixIcon: Icon(Icons.email),
                     hintText: "E-mail"),
+                onChanged: (String s){
+                  setState(() {
+                    email=s;
+                  });
+                },
               ),
               TextField(
                 obscureText: true,
                 decoration: InputDecoration(prefixIcon: Icon(Icons.lock),
                     hintText: "Password"),
+                onChanged: (String s){
+                  setState(() {
+                    password=s;
+                  });
+                },
+
               ),
               MaterialButton(
                 minWidth: MediaQuery.of(context).size.width,
-                  onPressed: (){
-              },
+                  onPressed: () async {
+                  Auth auth= new Auth();
+                  try {
+                    String uid = await auth.SignIn(email, password);
+                    print("Login:$uid");
+                  }
+                  on Exception catch(_){
+                      print("mauvais id");
+                    }
+                  },
                 color: col_main,
                 child: Text("Connexion"),
               ),

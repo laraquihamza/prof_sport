@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "730711210200",
+    "project_id": "coachinow",
+    "storage_bucket": "coachinow.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730711210200:android:29d8a162dd82c7bff63fad",
+        "android_client_info": {
+          "package_name": "com.example.prof_sport"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "730711210200-70k7p6jjaoiud7ffkhjls9s155ii5o6a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQJoDMev53paHbrYjY7x3HE1NwVyL_zq4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "730711210200-70k7p6jjaoiud7ffkhjls9s155ii5o6a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
