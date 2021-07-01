@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 abstract class AuthImplementation
 {
@@ -15,7 +16,6 @@ abstract class AuthImplementation
 class Auth implements AuthImplementation
 {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance ;
-// Methode pour le Signin //
   Future<String> SignIn(String email , String password) async
   {
     UserCredential user = await _firebaseAuth.signInWithEmailAndPassword( email : email , password :password );

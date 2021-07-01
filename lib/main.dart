@@ -4,6 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:toast/toast.dart';
 import 'SignupPage.dart';
+import 'welcome.dart';
+
 void main () async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -115,31 +117,38 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               MaterialButton(
                 minWidth: MediaQuery.of(context).size.width,
-                  onPressed: (){
+                  onPressed: () async {
+                  Auth auth= new Auth();
+                  User user= await auth.getCurrentUser();
+                  try {
+                    String uid = await auth.SignIn(email, password);
+                    Toast.show("Connexion réussie ", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context){
+                          return Welcome(title:"Bienvenue",user:user);
+                        })
 
+                    );
+
+
+                  }
+                  on Exception catch(_){
+                      Toast.show("Identifiants incorrects", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+
+                  }
                   },
                 color: col_main,
                 child: Text("Connexion"),
               ),
               MaterialButton(
                 minWidth: MediaQuery.of(context).size.width,
-                onPressed: () async {
-                  Auth auth= new Auth();
-                  try {
-                    String uid = await auth.SignIn(email, password);
-                    Toast.show("Connexion réussie ", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context){
-                          return SignupPage(title:"jojo");
-                        })
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context){
+                        return SignupPage(title:"jojo");
+                      })
 
-                    );
-
-                  }
-                  on Exception catch(_){
-                    Toast.show("Identifiants incorrects", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
-
-                  }
+                  );
                 },
                 color: col_main,
                 child: Text("Inscription"),
