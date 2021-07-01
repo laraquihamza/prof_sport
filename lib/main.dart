@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
+import 'package:toast/toast.dart';
+import 'SignupPage.dart';
 void main () async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -113,19 +115,36 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               MaterialButton(
                 minWidth: MediaQuery.of(context).size.width,
-                  onPressed: () async {
-                  Auth auth= new Auth();
-                  try {
-                    String uid = await auth.SignIn(email, password);
-                    print("Login:$uid");
-                  }
-                  on Exception catch(_){
-                      print("mauvais id");
-                    }
+                  onPressed: (){
+
                   },
                 color: col_main,
                 child: Text("Connexion"),
               ),
+              MaterialButton(
+                minWidth: MediaQuery.of(context).size.width,
+                onPressed: () async {
+                  Auth auth= new Auth();
+                  try {
+                    String uid = await auth.SignIn(email, password);
+                    Toast.show("Connexion réussie ", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context){
+                          return SignupPage(title:"jojo");
+                        })
+
+                    );
+
+                  }
+                  on Exception catch(_){
+                    Toast.show("Identifiants incorrects", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+
+                  }
+                },
+                color: col_main,
+                child: Text("Inscription"),
+              ),
+
               Text("Mot de passe oublié ?",
               style: TextStyle(color: Colors.black,decoration: TextDecoration.underline),
               )

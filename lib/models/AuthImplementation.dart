@@ -7,7 +7,9 @@ abstract class AuthImplementation
   Future<String> SignIn(String email , String password) ;
   Future<String> SignUp(String email , String password) ;
   Future<void> signOut() ;
-  Future<String> getCurrentUser() ;
+  Future<String> getCurrentUserUid() ;
+  Future<User> getCurrentUser() ;
+
 }
 
 class Auth implements AuthImplementation
@@ -32,8 +34,14 @@ class Auth implements AuthImplementation
   }
 // savoir l'utlilisateur logué au moment réel //
 
-Future<String> getCurrentUser() async{
+Future<String> getCurrentUserUid() async{
       User user= await _firebaseAuth.currentUser!;
-      return user.uid;
+       return user.uid;
 }
+  Future<User> getCurrentUser() async{
+    User user= await _firebaseAuth.currentUser!;
+    return user;
+  }
+
+
 }
