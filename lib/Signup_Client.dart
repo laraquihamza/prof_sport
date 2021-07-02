@@ -52,7 +52,12 @@ class _SignupClient extends State<SignupClient> {
         child: Column(
           children: [
                 Text("Nom"),
-                TextField(keyboardType: TextInputType.text),
+                TextField(keyboardType: TextInputType.text,onChanged: (s){
+                  setState(() {
+                    lastname=s;
+                  });
+
+                },),
             Text("Prénom"),
             TextField(keyboardType: TextInputType.text, onChanged: (s){
               setState(() {
@@ -102,7 +107,7 @@ class _SignupClient extends State<SignupClient> {
 
             },),
             MaterialButton(onPressed: (){
-              Auth().SignUp(email, password);
+              Auth().SignUpBig(email, password,firstname,lastname,city,address,phonenumber,birthdate!);
             },
               color: Colors.blue,
               child: Text("Inscription"),
@@ -114,6 +119,7 @@ class _SignupClient extends State<SignupClient> {
 
   }
   Future<Null> montrerAge() async{
+
     DateTime? res = await showDatePicker(context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime(1900),
