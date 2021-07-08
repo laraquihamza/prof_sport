@@ -8,6 +8,7 @@ import 'SignupPage.dart';
 import 'models/Client.dart';
 import 'welcome.dart';
 
+
 void main () async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -89,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
               button_signup(),
               Text("Mot de passe oublié ?",
               style: TextStyle(color: Colors.black,decoration: TextDecoration.underline),
-              )
+              ),
             ],
           ),
 
