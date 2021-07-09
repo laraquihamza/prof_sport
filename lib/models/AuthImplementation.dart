@@ -20,6 +20,7 @@ Future<String> SignInCoach(String email , String password) ;
 Future<String> SignUpCoach(String email , String password) ;
 Future<String> SignUpBigCoach(String email , String password, String firstname, String lastname,String city, String address,String phonenumber, DateTime birthdate);
 Future<String> UploadDocument(String filePath);
+  Future<String> downloadURL(String path);
 
 Future<void> signOut() ;
   Future<String> getCurrentUserUid() ;
@@ -82,7 +83,7 @@ Future<String> getCurrentUserUid() async{
   Future<String> UploadDocument(String filePath) async{
     File file=File(filePath);
     try{
-      await FirebaseStorage.instance.ref("uploads/$filePath").putFile(file);
+      await FirebaseStorage.instance.ref("uploads/$filePath").putFile(file).whenComplete(() => (){});
     }
     on FirebaseException catch (e){
       print(e.message);
@@ -92,8 +93,11 @@ Future<String> getCurrentUserUid() async{
 
 
   }
-
-
+  Future<String> downloadURL(String path) async {
+    print("koko:/uploads"+path);
+    var downloadURL = await FirebaseStorage.instance.ref("/uploads"+path).getDownloadURL();
+    return downloadURL;
+  }
 // Methode pour le Signup //
 
   Future<String> SignInCoach(String email , String password) async

@@ -6,6 +6,7 @@ import 'package:toast/toast.dart';
 import 'package:prof_sport/models/Client.dart';
 import 'SignupPage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 
 class Welcome extends StatefulWidget{
   final String title;
@@ -38,8 +39,12 @@ class _Welcome extends State<Welcome>{
                 child: Text("Upload Image"),
                 onPressed: () async{
                   print("jojo");
-                  String file= (await ImagePicker().getImage(source: ImageSource.gallery))!.path;
+                  String file= (await FilePicker.platform.pickFiles())!.files.single!.path!;
                   Auth().UploadDocument(file);
+                  print("jojo"+file);
+
+                  String url=await Auth().downloadURL(file);
+                  print(url);
                   print("jojojojo"+file);
 
                 }),
