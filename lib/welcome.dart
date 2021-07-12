@@ -18,6 +18,7 @@ class Welcome extends StatefulWidget{
   }
 }
 class _Welcome extends State<Welcome>{
+  List <Widget> docs=[];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,10 +43,9 @@ class _Welcome extends State<Welcome>{
                   String file= (await FilePicker.platform.pickFiles())!.files.single!.path!;
                   Auth().UploadDocument(file);
                   print("jojo"+file);
-
-                  String url=await Auth().downloadURL(file);
+                  /*String url=await Auth().downloadURL(file);
                   print(url);
-                  print("jojojojo"+file);
+                  print("jojojojo"+file);*/
 
                 }),
 
@@ -54,11 +54,24 @@ class _Welcome extends State<Welcome>{
               Navigator.pop(context);
             },
             child: Text("Déconnexion"),
-            )
+            ),
+            Text("documents"),
+            FutureBuilder(future:list_documents() ,builder: (context,snapshot) {
+              list_documents();
+              return Column(children:docs);
+            })
           ]
         ),
       ),
     );
+
+  }
+  Future< Null> list_documents() async{
+    List list= await Auth().get_documents();
+    print("kkikii$list");
+    for(int i=0; i<list.length;i++){
+      docs.add(Text(list[i]));
+    }
   }
 
 }

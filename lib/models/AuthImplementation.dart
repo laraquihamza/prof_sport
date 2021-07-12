@@ -25,6 +25,8 @@ Future<String> UploadDocument(String filePath);
 Future<void> signOut() ;
   Future<String> getCurrentUserUid() ;
   Future<Client> getCurrentUser() ;
+  Future<List> get_documents();
+
 
 }
 
@@ -51,9 +53,10 @@ class Auth implements AuthImplementation
       'lastname': lastname, // Stokes and Sons
       'city': city, // 42
       'address': address, // 42
-      'phone': city, // 42
-      'address': address, // 42
-      'birthdate':birthdate
+      'phone': phonenumber, // 42
+      'birthdate':birthdate,
+      'documents_user':[]
+
     }
     );
 
@@ -69,9 +72,9 @@ class Auth implements AuthImplementation
   }
 // savoir l'utlilisateur logué au moment réel //
 
-Future<String> getCurrentUserUid() async{
-      User user= await _firebaseAuth.currentUser!;
-       return user.uid;
+Future<String> getCurrentUserUid() async {
+      User user= await  _firebaseAuth.currentUser!;
+       return  user.uid;
 }
   Future<Client> getCurrentUser() async{
     User user= await _firebaseAuth.currentUser!;
@@ -82,8 +85,26 @@ Future<String> getCurrentUserUid() async{
   }
   Future<String> UploadDocument(String filePath) async{
     File file=File(filePath);
+    Client client=await getCurrentUser();
+    List list=(await FirebaseFirestore.instance.collection("users").doc(client.uid).get()).data()!["documents_list"];
+    print("jojojo$list");
+    if(list==null)list=[];
+    list.add("uploads$filePath");
+    print("kokokoko$list");
     try{
       await FirebaseStorage.instance.ref("uploads/$filePath").putFile(file).whenComplete(() => (){});
+      FirebaseFirestore.instance.collection("users").doc(client.uid).set({
+        'id':client.uid,
+        'firstname': client.firstname, // John Doe
+        'lastname': client.lastname, // Stokes and Sons
+        'city': client.city, // 42
+        'address': client.address, // 42
+        'phone': client.city, // 42
+        'address': client.address, // 42
+        'birthdate':client.birthdate,
+        "documents_list": list
+      }
+      );
     }
     on FirebaseException catch (e){
       print(e.message);
@@ -97,6 +118,11 @@ Future<String> getCurrentUserUid() async{
     print("koko:/uploads"+path);
     var downloadURL = await FirebaseStorage.instance.ref("/uploads"+path).getDownloadURL();
     return downloadURL;
+  }
+  Future<List> get_documents() async{
+    Client client=await getCurrentUser();
+    List list=(await FirebaseFirestore.instance.collection("users").doc(client.uid).get()).data()!["documents_list"];
+    return list;
   }
 // Methode pour le Signup //
 
@@ -121,7 +147,8 @@ Future<String> getCurrentUserUid() async{
       'address': address, // 42
       'phone': city, // 42
       'address': address, // 42
-      'birthdate':birthdate
+      'birthdate':birthdate,
+      'documents_user':[]
     }
     );
 
