@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -70,27 +71,39 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: Padding(
           padding: EdgeInsets.all(10.0),
           child:        Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               logo(),
-              textfield_email(),
-              textfield_password(),
-              button_login(),
-              button_signup(),
-              Text("Mot de passe oublié ?",
-              style: TextStyle(color: Colors.black,decoration: TextDecoration.underline),
+              Column(
+                children: [
+                  textfield_email(),
+                  textfield_password(),
+                  button_login(),
+                  Text("Mot de passe oublié ?",
+                    style: TextStyle(color: Colors.black,decoration: TextDecoration.underline),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(padding: EdgeInsets.all(5.0),
+                          child: Image.asset("assets/facebook.png",width: 25.0)),
+                      Text("Connexion avec Facebook",
+                        style: TextStyle(color: Colors.black,decoration: TextDecoration.underline),
+                      ),
+
+                    ],
+                  ),
+
+                ],
               ),
+              button_signup(),
+
             ],
           ),
 
@@ -102,20 +115,28 @@ class _MyHomePageState extends State<MyHomePage> {
     return               Image.asset("assets/coachinow.png");
   }
   Widget textfield_email(){
-    return TextField(keyboardType: TextInputType.emailAddress,
+    return Padding(padding: EdgeInsets.all(5.0,),
+        child: TextField(keyboardType: TextInputType.emailAddress,
       decoration: InputDecoration(prefixIcon: Icon(Icons.email),
+          border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
           hintText: "E-mail"),
       onChanged: (String s){
         setState(() {
           email=s;
         });
       },
+    )
     );
   }
   Widget textfield_password(){
-    return TextField(
+
+    return Padding(padding: EdgeInsets.all(5.0,
+    ),
+    child: TextField(
       obscureText: true,
       decoration: InputDecoration(prefixIcon: Icon(Icons.lock),
+          border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+
           hintText: "Password"),
       onChanged: (String s){
         setState(() {
@@ -123,11 +144,13 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       },
 
+    ),
     );
 
   }
   Widget button_login(){
-    return MaterialButton(
+    return Padding(padding: EdgeInsets.all(5.0,),
+    child: MaterialButton(
       minWidth: MediaQuery.of(context).size.width,
       onPressed: () async {
         Auth auth= new Auth();
@@ -153,22 +176,26 @@ class _MyHomePageState extends State<MyHomePage> {
       },
       color: col_main,
       child: Text("Connexion"),
-    );
+    ));
 
   }
   Widget button_signup(){
-    return               MaterialButton(
-      minWidth: MediaQuery.of(context).size.width,
-      onPressed: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context){
-              return SignupPage(title:"jojo");
-            })
+    return               Container(
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(width:1.0,color: Colors.grey),),
+      ),
+      child: FlatButton(
+        onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context){
+                return SignupPage(title:"jojo");
+              })
 
-        );
-      },
-      color: col_main,
-      child: Text("Inscription"),
+          );
+        },
+        child: Text("Créer un compte",style:TextStyle(color:Colors.blueAccent )),
+      )
     );
 
   }
