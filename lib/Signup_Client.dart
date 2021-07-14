@@ -29,10 +29,9 @@ class _SignupClient extends State<SignupClient> {
   String password="";
   String confirmpassword="";
   String address="";
-  String city="";
+  String city="Agadir";
   DateTime? birthdate;
   String phonenumber="";
-  String dropdownValue="Agadir";
 
   @override
   Widget build(BuildContext context) {
@@ -83,165 +82,49 @@ class _SignupClient extends State<SignupClient> {
                   Text("Changer de photo?")
                 ],
               ),
-              Align(
-                alignment: Alignment.topLeft,
-                child:                 Text("Nom"),
-              ),
-            TextField(keyboardType: TextInputType.text,onChanged: (s){
-                    setState(() {
-                      lastname=s;
-                    });
-
-                  },
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-                          isDense: true
-
-                      )
-                  ),
-              Align(
-                alignment: Alignment.topLeft,
-                child:                 Text("Prénom"),
-              ),
-              TextField(keyboardType: TextInputType.text, onChanged: (s){
-                setState(() {
-                  firstname=s;
-                });
-              },
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-                      isDense: true
-
-                  )
-
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child:                 Text("Adresse e-mail"),
-              ),
-              TextField(keyboardType: TextInputType.emailAddress, onChanged: (s){
-                setState(() {
-                  email=s;
-                });
-              },
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-                      isDense: true
-
-                  )
-
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child:                 Text("Mot de passe"),
-              ),
-              TextField(keyboardType: TextInputType.text, obscureText: true,onChanged: (s){
-                setState(() {
-                  password=s;
-                });
-              },
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-                      isDense: true
-
-                  )
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child:                 Text("Confirmer le mot de passe"),
-              ),
-              TextField(keyboardType: TextInputType.text,obscureText: true, onChanged: (s){
-                setState(() {
-                  confirmpassword=s;
-                });
-
-              },
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-                      isDense: true
-
-                  )
-
-              ),
+              field("Nom", lastname,false),
+              field("Prénom", firstname,false),
+              field("Adresse e-mail",email, false),
+              field("Mot de passe",password,true),
+              field("Confirmer le mot de passe",password,true),
               Align(
                 alignment: Alignment.topLeft,
                 child:                 Text("Date de naissance"),
               ),
-              RaisedButton(onPressed: montrerAge,child: Text(birthdate!=null?"${birthdate!.day}/${birthdate!.month}/${birthdate!.year}":"Saisissez votre date de naissance"),),
-              Align(
-                alignment: Alignment.topLeft,
-                child:                 Text("Adresse postale"),
-              ),
-              TextField(keyboardType: TextInputType.text, onChanged: (s){
-                setState(() {
-                  address=s;
-                });
+              MaterialButton(minWidth:MediaQuery.of(context).size.width, color: Colors.grey.shade200, onPressed: montrerAge,child: Text(birthdate!=null?"${birthdate!.day}/${birthdate!.month}/${birthdate!.year}":"Saisissez votre date de naissance"),),
+              field("Adresse Postale", address,false),
 
-              },
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-                      isDense: true
-
-                  )
-
-              ),
               Align(
                 alignment: Alignment.topLeft,
                 child:                 Text("Ville"),
               ),
              DropdownButton<String>(
+               isExpanded: true,
             value: city,
             icon: const Icon(Icons.arrow_downward),
         iconSize: 24,
         elevation: 16,
-        style: const TextStyle(color: Colors.deepPurple),
+        style: const TextStyle(color: Colors.blueAccent),
         underline: Container(
           height: 2,
-          color: Colors.deepPurpleAccent,
+          color: Colors.blueAccent,
         ),
         onChanged: (String? newValue) {
           setState(() {
             city=newValue!;
           });
         },
-        items: <String>['Casablanca', 'Fes', "Rabat", "Agadir"]
+        items: <String>["Casablanca", "Fes", "Rabat", "Agadir"]
             .map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
-            child: Text(value),
+            child: Text(value, style: TextStyle(color: Colors.blueAccent),),
           );
         }).toList(),
       ),
-              TextField(keyboardType: TextInputType.text,onChanged: (s){
-                setState(() {
-                  city=s;
-                });
+              field("Numéro de téléphone", phonenumber,false),
 
-              },
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey))
-,                    isDense: true
-
-                  )
-
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child:                 Text("Numéro de téléphone"),
-              ),
-              TextField(keyboardType: TextInputType.phone,onChanged: (s){
-                setState(() {
-                  phonenumber=s;
-                });
-
-              },
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-                    isDense: true
-                  )
-
-              ),
-   /*           MaterialButton(onPressed: (){
+              /*           MaterialButton(onPressed: (){
                 Auth().SignUpBig(email, password,firstname,lastname,city,address,phonenumber,birthdate!);
               },
                 color: Colors.blue,
@@ -269,4 +152,27 @@ class _SignupClient extends State<SignupClient> {
     }
   }
 
+  Widget field(String name_field, String str,bool isPassword){
+    return  Column(
+      children: [
+        Align(
+          alignment: Alignment.topLeft,
+          child:                 Text(name_field),
+        ),
+        TextField(obscureText:isPassword ,keyboardType: TextInputType.text,onChanged: (s){
+          setState(() {
+            str=s;
+          });
+
+        },
+            decoration: InputDecoration(
+                border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                isDense: true
+
+            )
+        ),
+
+      ],);
+
+  }
 }
