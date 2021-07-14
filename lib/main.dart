@@ -137,6 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
       decoration: InputDecoration(prefixIcon: Icon(Icons.lock),
           border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
 
+
           hintText: "Password"),
       onChanged: (String s){
         setState(() {
