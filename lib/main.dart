@@ -1,15 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:prof_sport/CoachOuClient.dart.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:toast/toast.dart';
-import 'SignupPage.dart';
+import 'CoachOuClient.dart.dart';
 import 'models/Client.dart';
 import 'welcome.dart';
 
-
-void main () async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MyApp());
@@ -58,10 +57,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-  Color col_main= Colors.blueAccent;
-  String email="";
-  String password="";
+  Color col_main = Colors.blueAccent;
+  String email = "";
+  String password = "";
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -72,132 +70,140 @@ class _MyHomePageState extends State<MyHomePage> {
     // than having to individually change instances of widgets
     return Scaffold(
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Padding(
-          padding: EdgeInsets.all(10.0),
-          child:        Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              logo(),
-              Column(
-                children: [
-                  textfield_email(),
-                  textfield_password(),
-                  button_login(),
-                  Text("Mot de passe oublié ?",
-                    style: TextStyle(color: Colors.black,decoration: TextDecoration.underline),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(padding: EdgeInsets.all(5.0),
-                          child: Image.asset("assets/facebook.png",width: 25.0)),
-                      Text("Connexion avec Facebook",
-                        style: TextStyle(color: Colors.black,decoration: TextDecoration.underline),
-                      ),
+          // Center is a layout widget. It takes a single child and positions it
+          // in the middle of the parent.
+          child: Padding(
+        padding: EdgeInsets.all(10.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            logo(),
+            Column(
+              children: [
+                textfield_email(),
+                textfield_password(),
+                button_login(),
+                Text(
+                  "Mot de passe oublié ?",
+                  style: TextStyle(
+                      color: Colors.black,
+                      decoration: TextDecoration.underline),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                        padding: EdgeInsets.all(5.0),
+                        child: Image.asset("assets/facebook.png", width: 25.0)),
+                    Text(
+                      "Connexion avec Facebook",
+                      style: TextStyle(
+                          color: Colors.black,
+                          decoration: TextDecoration.underline),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            button_signup(),
+          ],
+        ),
+      )),
+    );
+  }
 
-                    ],
-                  ),
+  Widget logo() {
+    return Image.asset("assets/coachinow.png");
+  }
 
-                ],
-              ),
-              button_signup(),
+  Widget textfield_email() {
+    return Padding(
+        padding: EdgeInsets.all(
+          5.0,
+        ),
+        child: TextField(
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(
+              prefixIcon: Icon(Icons.email),
+              border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey)),
+              hintText: "E-mail"),
+          onChanged: (String s) {
+            setState(() {
+              email = s;
+            });
+          },
+        ));
+  }
 
-            ],
-          ),
-
-        )
+  Widget textfield_password() {
+    return Padding(
+      padding: EdgeInsets.all(
+        5.0,
       ),
-    );
-  }
-  Widget logo(){
-    return               Image.asset("assets/coachinow.png");
-  }
-  Widget textfield_email(){
-    return Padding(padding: EdgeInsets.all(5.0,),
-        child: TextField(keyboardType: TextInputType.emailAddress,
-      decoration: InputDecoration(prefixIcon: Icon(Icons.email),
-          border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-          hintText: "E-mail"),
-      onChanged: (String s){
-        setState(() {
-          email=s;
-        });
-      },
-    )
-    );
-  }
-  Widget textfield_password(){
-
-    return Padding(padding: EdgeInsets.all(5.0,
-    ),
-    child: TextField(
-      obscureText: true,
-      decoration: InputDecoration(prefixIcon: Icon(Icons.lock),
-          border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-
-
-          hintText: "Password"),
-      onChanged: (String s){
-        setState(() {
-          password=s;
-        });
-      },
-
-    ),
-    );
-
-  }
-  Widget button_login(){
-    return Padding(padding: EdgeInsets.all(5.0,),
-    child: MaterialButton(
-      minWidth: MediaQuery.of(context).size.width,
-      onPressed: () async {
-        Auth auth= new Auth();
-        Client client;
-
-        try {
-          String uid = await auth.SignIn(email, password);
-          client=await auth.getCurrentUser();
-          Toast.show("Connexion réussie ", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context){
-                return Welcome(title:"Bienvenue",client:client);
-              })
-
-          );
-
-
-        }
-        on Exception catch(_){
-          Toast.show("Identifiants incorrects", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
-
-        }
-      },
-      color: col_main,
-      child: Text("Connexion"),
-    ));
-
-  }
-  Widget button_signup(){
-    return               Container(
-      width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(width:1.0,color: Colors.grey),),
-      ),
-      child: FlatButton(
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context){
-                return SignupPage(title:"jojo");
-              })
-
-          );
+      child: TextField(
+        obscureText: true,
+        decoration: InputDecoration(
+            prefixIcon: Icon(Icons.lock),
+            border:
+                OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+            hintText: "Password"),
+        onChanged: (String s) {
+          setState(() {
+            password = s;
+          });
         },
-        child: Text("Créer un compte",style:TextStyle(color:Colors.blueAccent )),
-      )
+      ),
     );
+  }
 
+  Widget button_login() {
+    return Padding(
+        padding: EdgeInsets.all(
+          5.0,
+        ),
+        child: MaterialButton(
+          minWidth: MediaQuery.of(context).size.width,
+          onPressed: () async {
+            Auth auth = new Auth();
+            Client client;
+
+            try {
+              String uid = await auth.SignIn(email, password);
+              client = await auth.getCurrentUser();
+              Toast.show("Connexion réussie ", context,
+                  duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return Welcome(title: "Bienvenue", client: client);
+              }));
+            } on Exception catch (_) {
+              Toast.show("Identifiants incorrects", context,
+                  duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+            }
+          },
+          color: col_main,
+          child: Text("Connexion"),
+        ));
+  }
+
+  Widget button_signup() {
+    return Container(
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(width: 1.0, color: Colors.grey),
+          ),
+        ),
+        child: RaisedButton(
+          color: Colors.transparent,
+          elevation: 0.0,
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return CoachouClient();
+            }));
+          },
+          child: Text("Créer un compte",
+              style: TextStyle(color: Colors.blueAccent)),
+        ));
   }
 }

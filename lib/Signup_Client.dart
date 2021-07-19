@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
-import 'package:toast/toast.dart';
+
 class SignupClient extends StatefulWidget {
   SignupClient({Key? key, required this.title}) : super(key: key);
 
@@ -23,16 +21,19 @@ class SignupClient extends StatefulWidget {
 }
 
 class _SignupClient extends State<SignupClient> {
-  String firstname="";
-  String lastname="";
-  String email="";
-  String password="";
-  String confirmpassword="";
-  String address="";
-  String city="Agadir";
-  DateTime? birthdate;
-  String phonenumber="";
-
+  String firstname = "";
+  String lastname = "";
+  String email = "";
+  String password = "";
+  String confirmpassword = "";
+  String address = "";
+  String city = "Agadir";
+  DateTime? birthdate=DateTime(1970,10,10);
+  String phonenumber = "";
+  String gender="Homme";
+  int height=170;
+  int weight=70;
+  double imc=24.2;
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -52,127 +53,285 @@ class _SignupClient extends State<SignupClient> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Wrap(
-              children:
-[            Icon(Icons.arrow_back,color: Colors.black,),
-            Text("Retour",style: TextStyle(color: Colors.black),)
-          ]
-            ),
-            Wrap(
-                children:
-                [            Icon(Icons.save_alt,color: Colors.black,),
-                  Text("Enregistrer",style: TextStyle(color: Colors.black),)
-                ]
-            )
-
+            Wrap(children: [
+              Icon(
+                Icons.arrow_back,
+                color: Colors.black,
+              ),
+              Text(
+                "Retour",
+                style: TextStyle(color: Colors.black),
+              )
+            ]),
+            Wrap(children: [
+              Icon(
+                Icons.save_alt,
+                color: Colors.black,
+              ),
+              Text(
+                "Enregistrer",
+                style: TextStyle(color: Colors.black),
+              )
+            ])
           ],
         ),
         elevation: 0.0,
       ),
       body: SingleChildScrollView(
+        child: Padding(
+            padding: EdgeInsets.all(10.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Icon(
+                      Icons.account_circle,
+                      size: 100.0,
+                    ),
+                    Text("Changer de photo?")
+                  ],
+                ),
+                field("Nom", lastname, false),
+                field("Prénom", firstname, false),
+                field("Adresse e-mail", email, false),
+                field("Mot de passe", password, true),
+                field("Confirmer le mot de passe", password, true),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Text("Date de naissance"),
+                ),
+                MaterialButton(
+                  minWidth: MediaQuery.of(context).size.width,
+                  color: Colors.grey.shade200,
+                  onPressed: montrerAge,
+                  child: Text(birthdate != null
+                      ? "${birthdate!.day}/${birthdate!.month}/${birthdate!.year}"
+                      : "Saisissez votre date de naissance"),
+                ),
+                field("Adresse Postale", address, false),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Text("Ville"),
+                ),
+                DropdownButton<String>(
+                  isExpanded: true,
+                  value: city,
+                  icon: const Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: const TextStyle(color: Colors.blueAccent),
+                  underline: Container(
+                    height: 2,
+                    color: Colors.blueAccent,
+                  ),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      city = newValue!;
+                    });
+                  },
+                  items: <String>["Casablanca", "Fes", "Rabat", "Agadir"]
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(
+                        value,
+                        style: TextStyle(color: Colors.blueAccent),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                field("Numéro de téléphone", phonenumber, false),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Wrap(
+                      children: [
+                        Icon(Icons.wc),
+                        Text("Sexe"),
+                      ],
+                    ),
+                    DropdownButton<String>(
+                      value: gender,
+                      underline: Container(
+                        height: 2,
+                        color: Colors.blueAccent,
+                      ),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          gender = newValue!;
+                        });
+                      },
 
-        child:
-        Padding(padding: EdgeInsets.all(10.0),
-          child:                  Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Icon(Icons.account_circle, size: 100.0,),
-                  Text("Changer de photo?")
-                ],
-              ),
-              field("Nom", lastname,false),
-              field("Prénom", firstname,false),
-              field("Adresse e-mail",email, false),
-              field("Mot de passe",password,true),
-              field("Confirmer le mot de passe",password,true),
-              Align(
-                alignment: Alignment.topLeft,
-                child:                 Text("Date de naissance"),
-              ),
-              MaterialButton(minWidth:MediaQuery.of(context).size.width, color: Colors.grey.shade200, onPressed: montrerAge,child: Text(birthdate!=null?"${birthdate!.day}/${birthdate!.month}/${birthdate!.year}":"Saisissez votre date de naissance"),),
-              field("Adresse Postale", address,false),
+                      items:<String>["Homme", "Femme"]
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(
+                              value,
+                              style: TextStyle(color: Colors.blueAccent),
+                            ),
+                          );
+                        }).toList(),
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Wrap(
+                      children: [
+                        Icon(Icons.height),
+                        Text("Taille"),
+                      ],
+                    ),
+                    DropdownButton<int>(
+                      value: height,
+                      underline: Container(
+                        height: 2,
+                        color: Colors.blueAccent,
+                      ),
+                      onChanged: (int? newValue) {
+                        setState(() {
+                          height = newValue!;
+                          imc=weight/((height/100)*(height/100));
+                        });
+                      },
 
-              Align(
-                alignment: Alignment.topLeft,
-                child:                 Text("Ville"),
-              ),
-             DropdownButton<String>(
-               isExpanded: true,
-            value: city,
-            icon: const Icon(Icons.arrow_downward),
-        iconSize: 24,
-        elevation: 16,
-        style: const TextStyle(color: Colors.blueAccent),
-        underline: Container(
-          height: 2,
-          color: Colors.blueAccent,
-        ),
-        onChanged: (String? newValue) {
-          setState(() {
-            city=newValue!;
-          });
-        },
-        items: <String>["Casablanca", "Fes", "Rabat", "Agadir"]
-            .map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value, style: TextStyle(color: Colors.blueAccent),),
-          );
-        }).toList(),
+                      items:List<int>.generate(150, (index) => index+100)
+                          .map<DropdownMenuItem<int>>((int value) {
+                        return DropdownMenuItem<int>(
+                          value: value,
+                          child: Text(
+                            value.toString()+"cm",
+                            style: TextStyle(color: Colors.blueAccent),
+                          ),
+                        );
+                      }).toList(),
+                    )
+                  ],
+                ),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Wrap(
+                      children: [
+                        Icon(Icons.monitor_weight),
+                        Text("Poids"),
+                      ],
+                    ),
+                    DropdownButton<int>(
+                      value: weight,
+                      underline: Container(
+                        height: 2,
+                        color: Colors.blueAccent,
+                      ),
+                      onChanged: (int? newValue) {
+                        setState(() {
+                          weight = newValue!;
+                          imc=weight/((height/100)*(height/100));
+                        });
+                      },
+
+                      items:List<int>.generate(400, (index) => index)
+                          .map<DropdownMenuItem<int>>((int value) {
+                        return DropdownMenuItem<int>(
+                          value: value,
+                          child: Text(
+                            value.toString()+"Kg",
+                            style: TextStyle(color: Colors.blueAccent),
+                          ),
+                        );
+                      }).toList(),
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Wrap(
+                      children: [
+                        Icon(Icons.fitness_center),
+                        Text("IMC"),
+                      ],
+                    ),
+                    Text("${imc.toStringAsPrecision(3)}",
+                      style: TextStyle(color:Colors.blueAccent),)
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Wrap(
+                      children: [
+                        Icon(Icons.accessibility),
+                        Text("IMG"),
+                      ],
+                    ),
+                    Text("${(1.2*imc+0.23*getAge(birthdate!)-10.8*(gender=="Homme"?1:0)-5.4).toStringAsPrecision(3)}",
+                      style: TextStyle(color:Colors.blueAccent),)
+                  ],
+                ),
+
+
+/*                MaterialButton(
+                  onPressed: () {
+                    Auth().SignUpBig(email, password, firstname, lastname, city,
+                        address, phonenumber, birthdate!);
+                  },
+                  color: Colors.blue,
+                  child: Text("Inscription"),
+                )*/
+              ],
+            )),
       ),
-              field("Numéro de téléphone", phonenumber,false),
-
-              /*           MaterialButton(onPressed: (){
-                Auth().SignUpBig(email, password,firstname,lastname,city,address,phonenumber,birthdate!);
-              },
-                color: Colors.blue,
-                child: Text("Inscription"),
-              )*/
-            ],
-          )
-
-        ),
-        ),
     );
-
   }
-  Future<Null> montrerAge() async{
 
-    DateTime? res = await showDatePicker(context: context,
+  Future<Null> montrerAge() async {
+    DateTime? res = await showDatePicker(
+        context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime(1900),
-        lastDate: DateTime.now()
-    );
-    if(res!=null){
+        lastDate: DateTime.now());
+    if (res != null) {
       setState(() {
-        birthdate=res;
+        birthdate = res;
       });
     }
   }
+   int getAge(DateTime birthdate){
+    DateTime now=DateTime.now();
+    
 
-  Widget field(String name_field, String str,bool isPassword){
-    return  Column(
+    int age = now.year-birthdate.year;
+
+    if (now.month < birthdate.month || (now.month==birthdate.month && now.day<birthdate.day)){
+      age--;
+    }
+    return age;
+  }
+  Widget field(String name_field, String str, bool isPassword) {
+    return Column(
       children: [
         Align(
           alignment: Alignment.topLeft,
-          child:                 Text(name_field),
+          child: Text(name_field),
         ),
-        TextField(obscureText:isPassword ,keyboardType: TextInputType.text,onChanged: (s){
-          setState(() {
-            str=s;
-          });
-
-        },
+        TextField(
+            obscureText: isPassword,
+            keyboardType: TextInputType.text,
+            onChanged: (s) {
+              setState(() {
+                str = s;
+              });
+            },
             decoration: InputDecoration(
-                border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-                isDense: true
-
-            )
-        ),
-
-      ],);
-
+                border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey)),
+                isDense: true)),
+      ],
+    );
   }
 }
