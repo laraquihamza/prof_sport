@@ -22,28 +22,44 @@ class Welcome extends StatefulWidget {
 
 class _Welcome extends State<Welcome> {
   List<Widget> docs = [];
+  late MeetingDataSource meetingDataSource;
   @override
   Widget build(BuildContext context) {
+    meetingDataSource=MeetingDataSource(getAppointments());
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(children: [
+      body:
           SfCalendar(
           view: CalendarView.week,
           monthViewSettings: MonthViewSettings(showAgenda: true),
+            dataSource: meetingDataSource,
+            onTap: (x){
+            meetingDataSource.appointments!.add(Appointment(subject:"Séance [A confirmer]",startTime: x.date!, endTime: x.date!.add(Duration(hours:1))));
+            meetingDataSource!.notifyListeners(CalendarDataSourceAction.add, meetingDataSource.appointments!);
+            },
         )
-        ]),
-      ),
     );
   }
-
+  List<Appointment> getAppointments(){
+    List <Appointment> meetings= <Appointment>[];
+    final DateTime today= DateTime.now();
+    final DateTime startTime= DateTime(today.year,today.month,today.day,9,0,0);
+    final DateTime endTime= DateTime(today.year,today.month,today.day,11,0,0);
+    meetings.add(Appointment(startTime: startTime, endTime: endTime, subject: "TTT"));
+    return meetings;
+  }
   Future<Null> list_documents() async {
     List list = await Auth().get_documents();
     print("kkikii$list");
     for (int i = 0; i < list.length; i++) {
       docs.add(Text(list[i]));
     }
+  }
+}
+class MeetingDataSource extends CalendarDataSource{
+  MeetingDataSource(List<Appointment> source){
+    appointments=source;
   }
 }
