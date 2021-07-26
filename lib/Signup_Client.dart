@@ -21,16 +21,16 @@ class SignupClient extends StatefulWidget {
 }
 
 class _SignupClient extends State<SignupClient> {
-  String firstname = "";
-  String lastname = "";
-  String email = "";
-  String password = "";
-  String confirmpassword = "";
-  String address = "";
-  String city = "Agadir";
+  Wrapper firstname = Wrapper("");
+  Wrapper lastname = Wrapper("");
+  Wrapper email = Wrapper("");
+  Wrapper password = Wrapper("");
+  Wrapper confirmpassword = Wrapper("");
+  Wrapper address = Wrapper("");
+  Wrapper city = Wrapper("Agadir");
   DateTime? birthdate=DateTime(1970,10,10);
-  String phonenumber = "";
-  String gender="Homme";
+  Wrapper phonenumber = Wrapper("");
+  Wrapper gender=Wrapper("Homme");
   int height=170;
   int weight=70;
   double imc=24.2;
@@ -64,9 +64,14 @@ class _SignupClient extends State<SignupClient> {
               )
             ]),
             Wrap(children: [
-              Icon(
-                Icons.save_alt,
+              IconButton(
+                onPressed:() async{
+            await Auth().SignUpBig(email.str, password.str, firstname.str, lastname.str, city.str,
+            address.str, phonenumber.str, birthdate!);
+            },
+                icon:Icon(Icons.save_alt),
                 color: Colors.black,
+
               ),
               Text(
                 "Enregistrer",
@@ -94,9 +99,9 @@ class _SignupClient extends State<SignupClient> {
                 ),
                 field("Nom", lastname, false),
                 field("Prénom", firstname, false),
-                field("Adresse e-mail", email, false),
-                field("Mot de passe", password, true),
-                field("Confirmer le mot de passe", password, true),
+                field("Adresse e-mail",email,false),
+                field("Mot de passe",password, true),
+                field("Confirmer le mot de passe", confirmpassword, true),
                 Align(
                   alignment: Alignment.topLeft,
                   child: Text("Date de naissance"),
@@ -116,7 +121,7 @@ class _SignupClient extends State<SignupClient> {
                 ),
                 DropdownButton<String>(
                   isExpanded: true,
-                  value: city,
+                  value: city.str,
                   icon: const Icon(Icons.arrow_downward),
                   iconSize: 24,
                   elevation: 16,
@@ -127,7 +132,7 @@ class _SignupClient extends State<SignupClient> {
                   ),
                   onChanged: (String? newValue) {
                     setState(() {
-                      city = newValue!;
+                      city.str = newValue!;
                     });
                   },
                   items: <String>["Casablanca", "Fes", "Rabat", "Agadir"]
@@ -152,14 +157,14 @@ class _SignupClient extends State<SignupClient> {
                       ],
                     ),
                     DropdownButton<String>(
-                      value: gender,
+                      value: gender.str,
                       underline: Container(
                         height: 2,
                         color: Colors.blueAccent,
                       ),
                       onChanged: (String? newValue) {
                         setState(() {
-                          gender = newValue!;
+                          gender.str = newValue!;
                         });
                       },
 
@@ -275,14 +280,6 @@ class _SignupClient extends State<SignupClient> {
                 ),
 
 
-/*                MaterialButton(
-                  onPressed: () {
-                    Auth().SignUpBig(email, password, firstname, lastname, city,
-                        address, phonenumber, birthdate!);
-                  },
-                  color: Colors.blue,
-                  child: Text("Inscription"),
-                )*/
               ],
             )),
       ),
@@ -312,7 +309,7 @@ class _SignupClient extends State<SignupClient> {
     }
     return age;
   }
-  Widget field(String name_field, String str, bool isPassword) {
+  Widget field(String name_field, Wrapper str, bool isPassword) {
     return Column(
       children: [
         Align(
@@ -324,7 +321,7 @@ class _SignupClient extends State<SignupClient> {
             keyboardType: TextInputType.text,
             onChanged: (s) {
               setState(() {
-                str = s;
+                str.str = s;
               });
             },
             decoration: InputDecoration(
@@ -333,5 +330,59 @@ class _SignupClient extends State<SignupClient> {
                 isDense: true)),
       ],
     );
+  }
+
+  Widget field_email(String name_field, bool isPassword) {
+    return Column(
+      children: [
+        Align(
+          alignment: Alignment.topLeft,
+          child: Text(name_field),
+        ),
+        TextField(
+            obscureText: isPassword,
+            keyboardType: TextInputType.text,
+            onChanged: (s) {
+              setState(() {
+                email.str = s;
+              });
+            },
+            decoration: InputDecoration(
+                border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey)),
+                isDense: true)),
+      ],
+    );
+  }
+
+  Widget field_password(String name_field, bool isPassword) {
+    return Column(
+      children: [
+        Align(
+          alignment: Alignment.topLeft,
+          child: Text(name_field),
+        ),
+        TextField(
+            obscureText: isPassword,
+            keyboardType: TextInputType.text,
+            onChanged: (s) {
+              setState(() {
+                password.str = s;
+              });
+            },
+            decoration: InputDecoration(
+                border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey)),
+                isDense: true)),
+      ],
+    );
+  }
+
+}
+
+class Wrapper{
+  late String str;
+  Wrapper(String str){
+    this.str=str;
   }
 }
