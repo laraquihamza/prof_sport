@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 
 class SignupClient extends StatefulWidget {
@@ -31,9 +34,19 @@ class _SignupClient extends State<SignupClient> {
   DateTime? birthdate=DateTime(1970,10,10);
   Wrapper phonenumber = Wrapper("");
   Wrapper gender=Wrapper("Homme");
+  Wrapper imageUrl=Wrapper("");
   int height=170;
   int weight=70;
   double imc=24.2;
+
+  Future<Null> uploadPicture() async{
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      imageUrl.str=image!.path;
+    });
+
+  }
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -67,7 +80,7 @@ class _SignupClient extends State<SignupClient> {
               IconButton(
                 onPressed:() async{
             await Auth().SignUpBig(email.str, password.str, firstname.str, lastname.str, city.str,
-            address.str, phonenumber.str, birthdate!);
+            address.str, phonenumber.str,imageUrl.str, birthdate!);
             },
                 icon:Icon(Icons.save_alt),
                 color: Colors.black,
@@ -87,15 +100,28 @@ class _SignupClient extends State<SignupClient> {
             padding: EdgeInsets.all(10.0),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(
-                      Icons.account_circle,
-                      size: 100.0,
-                    ),
-                    Text("Changer de photo?")
-                  ],
+                InkWell(
+                  onTap: uploadPicture,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children:
+                    [
+                      imageUrl.str==""? Icon(Icons.account_circle,size: 120.0,):
+                      Container(
+                        width: 120,
+                        height: 120,
+                        decoration: new BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: new DecorationImage(
+                              image: new FileImage(File(imageUrl.str)),
+                              fit: BoxFit.fill,
+                            )
+                        ),
+                      )
+                      ,
+                      Text(imageUrl.str==""? "Upload photo ?" : "Change photo"),
+                    ],
+                  ),
                 ),
                 field("Nom", lastname, false),
                 field("Prénom", firstname, false),

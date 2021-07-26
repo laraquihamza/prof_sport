@@ -20,6 +20,8 @@ abstract class AuthImplementation {
       String city,
       String address,
       String phonenumber,
+      String picture ,
+
       DateTime birthdate);
 
   Future<String> SignInCoach(String email, String password);
@@ -32,6 +34,12 @@ abstract class AuthImplementation {
       String city,
       String address,
       String phonenumber,
+      String sport,
+      int price,
+      String diplome,
+      String cin,
+      String cv,
+      String picture,
       DateTime birthdate);
   Future<String> UploadDocument(String filePath);
   Future<String> downloadURL(String path);
@@ -39,7 +47,6 @@ abstract class AuthImplementation {
   Future<void> signOut();
   Future<String> getCurrentUserUid();
   Future<Client> getCurrentUser();
-  Future<List> get_documents();
 }
 
 class Auth implements AuthImplementation {
@@ -65,6 +72,7 @@ class Auth implements AuthImplementation {
       String city,
       String address,
       String phonenumber,
+      String picture,
       DateTime birthdate) async {
     UserCredential user = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email, password: password);
@@ -76,7 +84,7 @@ class Auth implements AuthImplementation {
       'address': address, // 42
       'phone': phonenumber, // 42
       'birthdate': birthdate,
-      'documents_user': []
+      'picture': picture,
     });
 
     return user.user!.uid;
@@ -149,7 +157,6 @@ class Auth implements AuthImplementation {
   }
 
   Future<String> downloadURL(String path) async {
-    print("koko:/uploads" + path);
     var downloadURL =
         await FirebaseStorage.instance.ref("/uploads" + path).getDownloadURL();
     return downloadURL;
@@ -186,6 +193,12 @@ class Auth implements AuthImplementation {
       String city,
       String address,
       String phonenumber,
+      String sport,
+      int price,
+      String diplome,
+      String cin,
+      String cv,
+      String picture,
       DateTime birthdate) async {
     UserCredential user = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email, password: password);
@@ -197,7 +210,13 @@ class Auth implements AuthImplementation {
       'address': address, // 42
       'phone': city, // 42
       'birthdate': birthdate,
-      'documents_user': []
+      'cin': cin,
+      'cv':cv,
+      'picture':picture,
+      'diplome':diplome,
+      'price':price,
+      'sport':sport,
+
     });
 
     return user.user!.uid;
