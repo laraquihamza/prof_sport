@@ -8,7 +8,7 @@ import 'package:prof_sport/models/Coach.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-
+import 'User.dart';
 abstract class AuthImplementation {
   Future<String> SignIn(String email, String password);
   Future<String> SignUp(String email, String password);
@@ -20,10 +20,14 @@ abstract class AuthImplementation {
       String city,
       String address,
       String phonenumber,
-      String picture ,
-
+      String picture,
+      double imc,
+      double img,
+      int height,
+      int weight,
+      String gender,
       DateTime birthdate);
-
+  Future<String> user_type();
   Future<String> SignInCoach(String email, String password);
   Future<String> SignUpCoach(String email, String password);
   Future<String> SignUpBigCoach(
@@ -46,7 +50,9 @@ abstract class AuthImplementation {
 
   Future<void> signOut();
   Future<String> getCurrentUserUid();
-  Future<Client> getCurrentUser();
+  Future<Client> getCurrentClient();
+  Future<Coach> getCurrentCoach();
+
 }
 
 class Auth implements AuthImplementation {
@@ -73,6 +79,11 @@ class Auth implements AuthImplementation {
       String address,
       String phonenumber,
       String picture,
+      double imc,
+      double img,
+      int height,
+      int weight,
+      String gender,
       DateTime birthdate) async {
     UserCredential user = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email, password: password);
@@ -85,9 +96,46 @@ class Auth implements AuthImplementation {
       'phone': phonenumber, // 42
       'birthdate': birthdate,
       'picture': picture,
+      'imc':imc,
+      'img':img,
+      'height':height,
+      'weight':weight,
+      'gender':gender
     });
 
     return user.user!.uid;
+  }
+
+  Future<String> user_type() async{
+    String uid= await getCurrentUserUid();
+    bool isClient=true;
+    bool isCoach=true;
+
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(uid)
+        .get().then((value) {
+      if(!value.exists){
+        isClient=false;
+      }
+    });
+      await FirebaseFirestore.instance
+          .collection("coaches")
+          .doc(uid)
+          .get().then((value) {
+            if(!value.exists){
+              isCoach=false;
+            }
+      });
+    print("isclient:"+isClient.toString());
+    print("iscoach:"+isCoach.toString());
+    if(isClient){
+      return "client";
+    }
+    else if(isCoach){
+      return "coach";
+    }
+    return "error";
   }
 
 // Logout the user //
@@ -101,14 +149,34 @@ class Auth implements AuthImplementation {
     return user.uid;
   }
 
-  Future<Client> getCurrentUser() async {
+  Future<Client> getCurrentClient() async {
+    User user = await _firebaseAuth.currentUser!;
+      var c = await FirebaseFirestore.instance
+          .collection("users")
+          .doc(user.uid)
+          .snapshots()
+          .first;
+      Client client = Client(
+          user.uid,
+          user.email!,
+          DateTime.fromMillisecondsSinceEpoch(
+              (c.data()!["birthdate"] as Timestamp).millisecondsSinceEpoch),
+          "",
+          c.data()!["city"],
+          c.data()!["address"],
+          c.data()!["firstname"],
+          c.data()!["lastname"],
+          c.data()!["phone"]);
+      return client;
+ }
+  Future<Coach> getCurrentCoach() async {
     User user = await _firebaseAuth.currentUser!;
     var c = await FirebaseFirestore.instance
-        .collection("users")
+        .collection("coaches")
         .doc(user.uid)
         .snapshots()
         .first;
-    Client client = Client(
+    Coach coach = Coach(
         user.uid,
         user.email!,
         DateTime.fromMillisecondsSinceEpoch(
@@ -119,36 +187,17 @@ class Auth implements AuthImplementation {
         c.data()!["firstname"],
         c.data()!["lastname"],
         c.data()!["phone"]);
-    return client;
+    return coach;
   }
+
 
   Future<String> UploadDocument(String filePath) async {
     File file = File(filePath);
-    Client client = await getCurrentUser();
-    List list = (await FirebaseFirestore.instance
-            .collection("users")
-            .doc(client.uid)
-            .get())
-        .data()!["documents_list"];
-    print("jojojo$list");
-    if (list == null) list = [];
-    list.add("uploads$filePath");
-    print("kokokoko$list");
     try {
       await FirebaseStorage.instance
-          .ref("uploads/$filePath")
+          .ref("$filePath")
           .putFile(file)
           .whenComplete(() => () {});
-      FirebaseFirestore.instance.collection("users").doc(client.uid).set({
-        'id': client.uid,
-        'firstname': client.firstname, // John Doe
-        'lastname': client.lastname, // Stokes and Sons
-        'city': client.city, // 42
-        'address': client.address, // 42
-        'phone': client.city, // 42
-        'birthdate': client.birthdate,
-        "documents_list": list
-      });
     } on FirebaseException catch (e) {
       print(e.message);
       return "failure";
@@ -158,19 +207,10 @@ class Auth implements AuthImplementation {
 
   Future<String> downloadURL(String path) async {
     var downloadURL =
-        await FirebaseStorage.instance.ref("/uploads" + path).getDownloadURL();
+        await FirebaseStorage.instance.ref(path).getDownloadURL();
     return downloadURL;
   }
 
-  Future<List> get_documents() async {
-    Client client = await getCurrentUser();
-    List list = (await FirebaseFirestore.instance
-            .collection("users")
-            .doc(client.uid)
-            .get())
-        .data()!["documents_list"];
-    return list;
-  }
 // Methode pour le Signup //
 
   Future<String> SignInCoach(String email, String password) async {

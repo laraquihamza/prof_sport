@@ -1,15 +1,6 @@
 import 'package:flutter/cupertino.dart';
-
-class Client {
-  String uid = "";
-  String email = "";
-  DateTime birthdate = DateTime(1900);
-  String password = "";
-  String city = "";
-  String address = "";
-  String firstname = "";
-  String lastname = "";
-  String phone = "";
+import 'User.dart';
+class Client extends User2{
   Client(
       String uid,
       String email,
@@ -19,7 +10,7 @@ class Client {
       String address,
       String firstname,
       String lastname,
-      String phone) {
+      String phone) : super('', '', DateTime.now(), '', '', '', '', '', '') {
     this.uid = uid;
     this.email = email;
     this.birthdate = birthdate;

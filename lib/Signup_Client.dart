@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
-
+import 'package:toast/toast.dart';
 class SignupClient extends StatefulWidget {
   SignupClient({Key? key, required this.title}) : super(key: key);
 
@@ -38,6 +38,7 @@ class _SignupClient extends State<SignupClient> {
   int height=170;
   int weight=70;
   double imc=24.2;
+  double img=35.2;
 
   Future<Null> uploadPicture() async{
     final ImagePicker _picker = ImagePicker();
@@ -66,22 +67,30 @@ class _SignupClient extends State<SignupClient> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Wrap(children: [
-              Icon(
-                Icons.arrow_back,
-                color: Colors.black,
-              ),
-              Text(
-                "Retour",
-                style: TextStyle(color: Colors.black),
-              )
-            ]),
+            InkWell(
+              onTap: (){Navigator.pop(context);},
+              child: Wrap(children: [
+                Icon(
+                  Icons.arrow_back,
+                  color: Colors.black,
+                ),
+                Text(
+                  "Retour",
+                  style: TextStyle(color: Colors.black),
+                )
+              ]),
+            ),
             Wrap(children: [
               IconButton(
                 onPressed:() async{
             await Auth().SignUpBig(email.str, password.str, firstname.str, lastname.str, city.str,
-            address.str, phonenumber.str,imageUrl.str, birthdate!);
-            },
+            address.str, phonenumber.str,imageUrl.str, imc,img,height,weight,gender.str, birthdate!);
+            Auth().UploadDocument(imageUrl.str);
+            Toast.show("Inscription réussie ", context,
+                duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+            Navigator.pop(context);
+
+                },
                 icon:Icon(Icons.save_alt),
                 color: Colors.black,
 
@@ -262,6 +271,7 @@ class _SignupClient extends State<SignupClient> {
                         setState(() {
                           weight = newValue!;
                           imc=weight/((height/100)*(height/100));
+                          img=(1.2*imc+0.23*getAge(birthdate!)-10.8*(gender=="Homme"?1:0)-5.4);
                         });
                       },
 
@@ -300,7 +310,7 @@ class _SignupClient extends State<SignupClient> {
                         Text("IMG"),
                       ],
                     ),
-                    Text("${(1.2*imc+0.23*getAge(birthdate!)-10.8*(gender=="Homme"?1:0)-5.4).toStringAsPrecision(3)}",
+                    Text("${img.toStringAsPrecision(3)}",
                       style: TextStyle(color:Colors.blueAccent),)
                   ],
                 ),
