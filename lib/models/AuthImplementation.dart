@@ -248,7 +248,7 @@ class Auth implements AuthImplementation {
       'lastname': lastname, // Stokes and Sons
       'city': city, // 42
       'address': address, // 42
-      'phone': city, // 42
+      'phone': phonenumber, // 42
       'birthdate': birthdate,
       'cin': cin,
       'cv':cv,
