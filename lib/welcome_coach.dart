@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:prof_sport/models/Coach.dart';
+import 'package:prof_sport/models/ReservationService.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 class Welcome_Coach extends StatefulWidget {
   final String title;
@@ -19,6 +20,7 @@ class _Welcome_Coach extends State<Welcome_Coach> {
   @override
   Widget build(BuildContext context) {
     meetingDataSource=MeetingDataSource(getAppointments());
+    ReservationService().get_coach_reservations(widget.coach.uid);
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
