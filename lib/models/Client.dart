@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'User.dart';
 class Client extends User2{
+  late String picture;
   Client(
       String uid,
       String email,
@@ -10,7 +11,9 @@ class Client extends User2{
       String address,
       String firstname,
       String lastname,
-      String phone) : super('', '', DateTime.now(), '', '', '', '', '', '') {
+      String phone,
+      String picture
+      ) : super('', '', DateTime.now(), '', '', '', '', '', '') {
     this.uid = uid;
     this.email = email;
     this.birthdate = birthdate;
@@ -20,5 +23,6 @@ class Client extends User2{
     this.firstname = firstname;
     this.lastname = lastname;
     this.phone = phone;
+    this.picture=picture;
   }
 }

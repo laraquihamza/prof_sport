@@ -166,7 +166,10 @@ class Auth implements AuthImplementation {
           c.data()!["address"],
           c.data()!["firstname"],
           c.data()!["lastname"],
-          c.data()!["phone"]);
+          c.data()!["phone"],
+        c.data()!["picture"]
+
+      );
       return client;
  }
   Future<Coach> getCurrentCoach() async {

@@ -8,7 +8,10 @@ import 'package:prof_sport/models/Coach.dart';
 import 'package:prof_sport/models/Reservation.dart';
 class ReservationService{
   void add_reservation(String idCoach,String idClient,DateTime dateDebut,int duration){
-    FirebaseFirestore.instance.collection("reservations").doc().set({
+    var doc=FirebaseFirestore.instance.collection("reservations").doc();
+
+    doc.set({
+      "id":doc.id,
       'idCoach':idCoach,
       'idClient':idClient,
       'dateDebut':dateDebut,
@@ -22,7 +25,7 @@ class ReservationService{
     where("idCoach",isEqualTo: idCoach).snapshots().first).docs;
     var c;
     for(c in docs){
-      res.add(Reservation(idclient:c["idClient"],idcoach:c["idCoach"],dateDebut:c["dateDebut"].toDate(),duration:c["duration"],isConfirmed:c["isConfirmed"]));
+      res.add(Reservation(id:c["id"] ,idclient:c["idClient"],idcoach:c["idCoach"],dateDebut:c["dateDebut"].toDate(),duration:c["duration"],isConfirmed:c["isConfirmed"]));
       print("idClient${c["idClient"]}");
       print("idCoach${c["idCoach"]}");
       print("dateDebut${c["dateDebut"]}");
@@ -33,13 +36,33 @@ class ReservationService{
     return res;
   }
 
-  Future<List<Reservation>> get_client_reservations(String idCoach) async{
+
+  Future<Null> confirm_reservation(Reservation reservation) async{
+    await FirebaseFirestore.instance.collection("reservations").doc(reservation.id).set(
+        {
+          'id':reservation.id,
+          'idCoach': reservation.idcoach,
+          'idClient': reservation.idclient,
+          'dateDebut': reservation.dateDebut,
+          'duration': reservation.duration,
+          'isConfirmed': true
+        }
+    );
+  }
+
+
+  Future<Null> refus_reservation(Reservation reservation) async{
+    await FirebaseFirestore.instance.collection("reservations").doc(reservation.id).delete();
+  }
+
+
+  Future<List<Reservation>> get_client_reservations(String idClient) async{
     List<Reservation> res= [];
     var docs=(await FirebaseFirestore.instance.collection("reservations").
-    where("idClient",isEqualTo: idCoach).snapshots().first).docs;
+    where("idClient",isEqualTo: idClient).snapshots().single).docs;
     var c;
     for(c in docs){
-      res.add(Reservation(idclient:c["idClient"],idcoach:c["idCoach"],dateDebut:c["dateDebut"].toDate(),duration:c["duration"],isConfirmed:c["isConfirmed"]));
+      res.add(Reservation(id:c["id"],idclient:c["idClient"],idcoach:c["idCoach"],dateDebut:c["dateDebut"].toDate(),duration:c["duration"],isConfirmed:c["isConfirmed"]));
       print("idClient${c["idClient"]}");
       print("idCoach${c["idCoach"]}");
       print("dateDebut${c["dateDebut"]}");
