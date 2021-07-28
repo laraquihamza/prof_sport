@@ -66,7 +66,11 @@ class _SearchResult extends State<SearchResult> {
                           snapshot.data!.docs[index]["address"],
                           snapshot.data!.docs[index]["firstname"],
                           snapshot.data!.docs[index]["lastname"],
-                          snapshot.data!.docs[index]["phone"]) ;
+                          snapshot.data!.docs[index]["phone"],
+                            snapshot.data!.docs[index]["picture"],
+                              snapshot.data!.docs[index]["price"],
+                              snapshot.data!.docs[index]["sport"]
+                            ) ;
                             Navigator.push(context, MaterialPageRoute(builder: (context)=>ReservationPage(coach: coach,)
                               ));
                           },

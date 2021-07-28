@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'User.dart';
 class Coach extends User2 {
+  late String picture;
+  late int price;
+  late String sport;
   Coach(
       String uid,
       String email,
@@ -10,7 +13,11 @@ class Coach extends User2 {
       String address,
       String firstname,
       String lastname,
-      String phone) : super('', '', DateTime.now(), '', '', '', '', '', '') {
+      String phone,
+      String picture,
+      int price,
+      String sport
+      ) : super('', '', DateTime.now(), '', '', '', '', '', '') {
     this.uid = uid;
     this.email = email;
     this.birthdate = birthdate;
@@ -20,5 +27,8 @@ class Coach extends User2 {
     this.firstname = firstname;
     this.lastname = lastname;
     this.phone = phone;
+    this.picture=picture;
+    this.price=price;
+    this.sport=sport;
   }
 }
