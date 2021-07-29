@@ -85,7 +85,7 @@ Future<Null> get_url(String path) async{
                                   {
 
                                   },
-                                      child: Text("Waitting")),
+                                      child: Text("En Attente")),
                                   SizedBox(width: 5,),
                                   ElevatedButton(onPressed: ()async
                                   {
