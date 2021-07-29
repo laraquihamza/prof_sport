@@ -5,6 +5,9 @@ import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:toast/toast.dart';
+import 'package:email_validator/email_validator.dart';
+
+
 class SignupClient extends StatefulWidget {
   SignupClient({Key? key, required this.title}) : super(key: key);
 
@@ -83,13 +86,20 @@ class _SignupClient extends State<SignupClient> {
             Wrap(children: [
               IconButton(
                 onPressed:() async{
-            await Auth().SignUpBig(email.str, password.str, firstname.str, lastname.str, city.str,
-            address.str, phonenumber.str,imageUrl.str, imc,img,height,weight,gender.str, birthdate!);
-            Auth().UploadDocument(imageUrl.str);
-            Toast.show("Inscription réussie ", context,
-                duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
-            Navigator.pop(context);
+                  if(EmailValidator.validate(email.str)==true && password.str == confirmpassword.str && password.str.length>=8 && address.str.length>0 && phonenumber.str.length>0 && firstname.str.length>0 && lastname.str.length>0){
+                    await Auth().SignUpBig(email.str, password.str, firstname.str, lastname.str, city.str,
+                        address.str, phonenumber.str,imageUrl.str, imc,img,height,weight,gender.str, birthdate!);
+                    Auth().UploadDocument(imageUrl.str);
+                    Toast.show("Inscription réussie ", context,
+                        duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+                    Navigator.pop(context);
 
+                  }
+                  else{
+                    Toast.show("Veuillez remplir tous les champs correctement ", context,
+                        duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+
+                  }
                 },
                 icon:Icon(Icons.save_alt),
                 color: Colors.black,

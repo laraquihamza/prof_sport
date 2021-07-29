@@ -91,20 +91,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       color: Colors.black,
                       decoration: TextDecoration.underline),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                        padding: EdgeInsets.all(5.0),
-                        child: Image.asset("assets/facebook.png", width: 25.0)),
-                    Text(
-                      "Connexion avec Facebook",
-                      style: TextStyle(
-                          color: Colors.black,
-                          decoration: TextDecoration.underline),
-                    ),
-                  ],
-                ),
               ],
             ),
             button_signup(),

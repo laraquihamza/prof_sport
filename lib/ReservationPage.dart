@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:prof_sport/models/Coach.dart';
 import 'package:prof_sport/models/ReservationService.dart';
+import 'package:toast/toast.dart';
 
+import 'main.dart';
 import 'models/AuthImplementation.dart';
 
 class ReservationPage extends StatefulWidget {
@@ -31,7 +33,17 @@ class _ReservationPageState extends State<ReservationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Fiche Coach",),centerTitle: true,),
+      appBar: AppBar(title: Text("Fiche Coach",),centerTitle: true,
+      actions: [
+        IconButton(onPressed: (){
+          Auth().signOut();
+          Navigator.push(context, MaterialPageRoute(builder: (context){
+            return MyApp();
+          }));
+
+        }, icon: Icon(Icons.logout, color: Colors.black,))
+      ],
+      ),
       body: Column(
         children:
         [
@@ -125,6 +137,8 @@ class _ReservationPageState extends State<ReservationPage> {
 
 
               ReservationService().add_reservation(widget.coach.uid, await Auth().getCurrentUserUid(), reservation!.add(Duration(hours:time!.hour,minutes: time!.minute,seconds: 0)), duration);
+              Toast.show("Réservation réussie", context);
+              Navigator.pop(context);
               print("nada"); },
             child: Text("Reserver"),
           ),)

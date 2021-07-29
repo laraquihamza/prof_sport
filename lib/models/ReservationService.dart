@@ -59,7 +59,7 @@ class ReservationService{
   Future<List<Reservation>> get_client_reservations(String idClient) async{
     List<Reservation> res= [];
     var docs=(await FirebaseFirestore.instance.collection("reservations").
-    where("idClient",isEqualTo: idClient).snapshots().single).docs;
+    where("idClient",isEqualTo: idClient).snapshots().first).docs;
     var c;
     for(c in docs){
       res.add(Reservation(id:c["id"],idclient:c["idClient"],idcoach:c["idCoach"],dateDebut:c["dateDebut"].toDate(),duration:c["duration"],isConfirmed:c["isConfirmed"]));

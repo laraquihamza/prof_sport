@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:prof_sport/ReservationPage.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
@@ -27,7 +28,12 @@ class _SearchResult extends State<SearchResult> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Résultats")),
+      appBar: AppBar(title: Text("Résultats"),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection("coaches").
         where("city",isEqualTo: widget.city).where("sport",isEqualTo:widget.sport).snapshots(),
@@ -39,25 +45,31 @@ class _SearchResult extends State<SearchResult> {
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (context,index
                   )  {
-                return FutureBuilder(
-                    future:getUrl(snapshot.data!.docs[index]["picture"]) ,
+                return StreamBuilder(
+                  stream: FirebaseStorage.instance.ref(snapshot.data!.docs[index]["picture"]).getDownloadURL().asStream(),
                     builder: (context,snap){
-                      getUrl(snapshot.data!.docs[index]["picture"]);
                       return Row(
                         children: [
                       snapshot.data!.docs[index]["price"]<=widget.tarif?Row(children:[
                         Container(width: 40,height: 40,decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           image: DecorationImage(
-                            image: NetworkImage(url,)
+                            image: NetworkImage(snap.data.toString())
                           )
                         ),),
                         SizedBox(width: 5,),
                         Text(snapshot.data!.docs[index]["firstname"]),
                         SizedBox(width: 5,),
                         Text(snapshot.data!.docs[index]["lastname"]),
-                      //  Spacer(),
-                        ElevatedButton(onPressed: ()
+                        SizedBox(width: 5,),
+                        Text("${snapshot.data!.docs[index]['price']}DH/h"),
+                        SizedBox(width: 20,),
+
+
+                        //  Spacer(),
+                        ElevatedButton(
+
+                            onPressed: ()
                           {
                             Coach coach=Coach(snapshot.data!.docs[index]["id"],
                           "",

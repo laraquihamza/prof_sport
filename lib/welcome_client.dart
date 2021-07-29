@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
+import 'package:prof_sport/reservations_client.dart';
 import 'package:prof_sport/search_result.dart';
 import 'package:toast/toast.dart';
 import 'package:prof_sport/models/Client.dart';
@@ -35,9 +36,11 @@ class _Welcome_Client extends State<Welcome_Client> {
   late MeetingDataSource meetingDataSource;
   @override
   Widget build(BuildContext context) {
-    meetingDataSource=MeetingDataSource(getAppointments());
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
         title: Text(widget.title),
       ),
       body:
@@ -144,7 +147,13 @@ class _Welcome_Client extends State<Welcome_Client> {
                 child: ElevatedButton(child: Text("Recherche"),onPressed: (){
                   Navigator.push(context, MaterialPageRoute(builder: (context)=> SearchResult(city.str,sport.str,tarif.str)));
                 },),
-              )
+
+
+              ),
+              SizedBox(height: 40,),
+              ElevatedButton(child: Text("Liste RDV"),onPressed: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=> ListeDemande(client: widget.client, title: 'Liste RDV')));
+              },),
 
 
             ],
@@ -153,14 +162,7 @@ class _Welcome_Client extends State<Welcome_Client> {
     );
   }
 
-  List<Appointment> getAppointments(){
-    List <Appointment> meetings= <Appointment>[];
-    final DateTime today= DateTime.now();
-    final DateTime startTime= DateTime(today.year,today.month,today.day,9,0,0);
-    final DateTime endTime= DateTime(today.year,today.month,today.day,11,0,0);
-    meetings.add(Appointment(startTime: startTime, endTime: endTime, subject: "TTT"));
-    return meetings;
-  }
+
 }
 class MeetingDataSource extends CalendarDataSource{
   MeetingDataSource(List<Appointment> source){
