@@ -4,6 +4,7 @@ import 'package:prof_sport/models/Coach.dart';
 import 'package:prof_sport/models/ReservationService.dart';
 import 'package:toast/toast.dart';
 
+import 'CustomAppBar.dart';
 import 'main.dart';
 import 'models/AuthImplementation.dart';
 
@@ -33,17 +34,7 @@ class _ReservationPageState extends State<ReservationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Fiche Coach",),centerTitle: true,
-      actions: [
-        IconButton(onPressed: (){
-          Auth().signOut();
-          Navigator.push(context, MaterialPageRoute(builder: (context){
-            return MyApp();
-          }));
-
-        }, icon: Icon(Icons.logout, color: Colors.black,))
-      ],
-      ),
+      appBar: custom_appbar("Réserver ", context),
       body: Column(
         children:
         [

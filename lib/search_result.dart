@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:prof_sport/CustomAppBar.dart';
 import 'package:prof_sport/ReservationPage.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:prof_sport/models/Coach.dart';
@@ -28,12 +29,7 @@ class _SearchResult extends State<SearchResult> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Résultats"),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-      ),
+      appBar: custom_appbar("Recherche", context),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection("coaches").
         where("city",isEqualTo: widget.city).where("sport",isEqualTo:widget.sport).snapshots(),

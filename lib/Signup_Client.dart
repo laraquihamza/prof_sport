@@ -83,25 +83,8 @@ class _SignupClient extends State<SignupClient> {
                 )
               ]),
             ),
-            Wrap(children: [
-              IconButton(
-                onPressed:() async{
-                  if(EmailValidator.validate(email.str)==true && password.str == confirmpassword.str && password.str.length>=8 && address.str.length>0 && phonenumber.str.length>0 && firstname.str.length>0 && lastname.str.length>0){
-                    await Auth().SignUpBig(email.str, password.str, firstname.str, lastname.str, city.str,
-                        address.str, phonenumber.str,imageUrl.str, imc,img,height,weight,gender.str, birthdate!);
-                    Auth().UploadDocument(imageUrl.str);
-                    Toast.show("Inscription réussie ", context,
-                        duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
-                    Navigator.pop(context);
-
-                  }
-                  else{
-                    Toast.show("Veuillez remplir tous les champs correctement ", context,
-                        duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
-
-                  }
-                },
-                icon:Icon(Icons.save_alt),
+            InkWell(child:             Wrap(children: [
+                Icon(Icons.save_alt,
                 color: Colors.black,
 
               ),
@@ -109,7 +92,24 @@ class _SignupClient extends State<SignupClient> {
                 "Enregistrer",
                 style: TextStyle(color: Colors.black),
               )
-            ])
+            ]),
+              onTap: () async{
+                if(EmailValidator.validate(email.str)==true && password.str == confirmpassword.str && password.str.length>=8 && address.str.length>0 && phonenumber.str.length>0 && firstname.str.length>0 && lastname.str.length>0){
+                  await Auth().SignUpBig(email.str, password.str, firstname.str, lastname.str, city.str,
+                      address.str, phonenumber.str,imageUrl.str, imc,img,height,weight,gender.str, birthdate!);
+                  Auth().UploadDocument(imageUrl.str);
+                  Toast.show("Inscription réussie ", context,
+                      duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+                  Navigator.pop(context);
+
+                }
+                else{
+                  Toast.show("Veuillez remplir tous les champs correctement ", context,
+                      duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+
+                }
+              },
+            ),
           ],
         ),
         elevation: 0.0,

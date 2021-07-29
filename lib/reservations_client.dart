@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:prof_sport/CustomAppBar.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:prof_sport/models/Client.dart';
 import 'package:prof_sport/models/Coach.dart';
@@ -31,14 +32,7 @@ Future<Null> get_url(String path) async{
   Widget build(BuildContext context) {
     ReservationService().get_client_reservations(widget.client.uid);
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          automaticallyImplyLeading: false,
-          title: Text(widget.title, style: TextStyle(color: Colors.black),),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-
-        ),
+        appBar: custom_appbar(widget.title, context),
         body:
         Column(
             children: [

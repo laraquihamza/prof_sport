@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:prof_sport/CustomAppBar.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:prof_sport/reservations_client.dart';
 import 'package:prof_sport/search_result.dart';
@@ -37,12 +38,7 @@ class _Welcome_Client extends State<Welcome_Client> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
-        title: Text(widget.title),
-      ),
+      appBar: custom_appbar(widget.title, context),
       body:
           Column(
             children: [

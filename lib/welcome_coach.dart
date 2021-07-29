@@ -7,6 +7,7 @@ import 'package:prof_sport/models/Coach.dart';
 import 'package:prof_sport/models/ReservationService.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
+import 'CustomAppBar.dart';
 import 'models/Reservation.dart';
 class Welcome_Coach extends StatefulWidget {
   final String title;
@@ -39,13 +40,7 @@ class _Welcome_Coach extends State<Welcome_Coach> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    appBar: AppBar(
-      centerTitle: true,
-      automaticallyImplyLeading: false,
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-    title: Text(widget.title,style: TextStyle(color: Colors.black),),
-    ),
+        appBar: custom_appbar("Réserver ", context),
     body:
     Column(
     children: [
