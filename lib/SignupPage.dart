@@ -35,7 +35,7 @@ class _SignupPage extends State<SignupPage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: custom_appbar(widget.title, context,false),
+      appBar: custom_appbar(widget.title, context,false   ),
       body: Center(
         child: Column(
           children: [

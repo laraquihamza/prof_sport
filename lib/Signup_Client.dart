@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
+import 'package:prof_sport/models/Client.dart';
+import 'package:prof_sport/welcome_client.dart';
 import 'package:toast/toast.dart';
 import 'package:email_validator/email_validator.dart';
 
@@ -97,10 +99,17 @@ class _SignupClient extends State<SignupClient> {
                 if(EmailValidator.validate(email.str)==true && password.str == confirmpassword.str && password.str.length>=8 && address.str.length>0 && phonenumber.str.length>0 && firstname.str.length>0 && lastname.str.length>0){
                   await Auth().SignUpBig(email.str, password.str, firstname.str, lastname.str, city.str,
                       address.str, phonenumber.str,imageUrl.str, imc,img,height,weight,gender.str, birthdate!);
-                  Auth().UploadDocument(imageUrl.str);
+                  await Auth().UploadDocument(imageUrl.str);
+                  await Auth().SignIn(email.str, password.str);
                   Toast.show("Inscription réussie ", context,
                       duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
-                  Navigator.pop(context);
+                  Client client =await Auth().getCurrentClient();
+                  Navigator.push(context, MaterialPageRoute(
+                      builder: (context){
+                        return Welcome_Client(title: "Client", client:client );
+                      }
+
+                  ));
 
                 }
                 else{
@@ -423,6 +432,7 @@ class _SignupClient extends State<SignupClient> {
       ],
     );
   }
+
 
 }
 

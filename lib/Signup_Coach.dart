@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:prof_sport/models/Coach.dart';
+import 'package:prof_sport/welcome_coach.dart';
 import 'package:toast/toast.dart';
 import 'package:email_validator/email_validator.dart';
 
@@ -32,7 +34,6 @@ class _SignupCoach extends State<SignupCoach> {
   Wrapper lastname = Wrapper("");
   Wrapper email = Wrapper("");
   Wrapper password = Wrapper("");
-  Wrapper confirmpassword = Wrapper("");
   Wrapper address = Wrapper("");
   Wrapper city = Wrapper("Agadir");
   DateTime? birthdate=DateTime(1970,10,10);
@@ -75,6 +76,13 @@ Future<Null> uploadPicture() async{
     });
 
   }
+
+  bool validatePassword(String value){
+    String  pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
+    RegExp regExp = new RegExp(pattern);
+    return regExp.hasMatch(value);
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -122,28 +130,40 @@ Future<Null> uploadPicture() async{
               ]
               ),
                 onTap: () async{
-                  await Auth().SignUpBigCoach(      email.str,
-                      password.str,
-                      firstname.str,
-                      lastname.str,
-                      city.str,
-                      address.str,
-                      phonenumber.str,
-                      sport.str,
-                      tarif.str,
-                      dip.str,
-                      cin.str,
-                      cv.str,
-                      imageUrl.str,
-                      birthdate!);
-                  Auth().UploadDocument(imageUrl.str);
-                  Auth().UploadDocument(cin.str);
-                  Auth().UploadDocument(cv.str);
-                  Auth().UploadDocument(dip.str);
-                  Toast.show("Inscription réussie ", context,
-                      duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
-                  Navigator.pop(context);
 
+                  if(EmailValidator.validate(email.str)==true && cv.str!="" && cin.str!="" && dip.str!='' && imageUrl!="" && validatePassword(password.str) && address.str.length>0 && phonenumber.str.length>0 && firstname.str.length>0 && lastname.str.length>0) {
+                    await Auth().SignUpBigCoach(
+                        email.str,
+                        password.str,
+                        firstname.str,
+                        lastname.str,
+                        city.str,
+                        address.str,
+                        phonenumber.str,
+                        sport.str,
+                        tarif.str,
+                        dip.str,
+                        cin.str,
+                        cv.str,
+                        imageUrl.str,
+                        birthdate!);
+                    Auth().UploadDocument(imageUrl.str);
+                    Auth().UploadDocument(cin.str);
+                    Auth().UploadDocument(cv.str);
+                    Auth().UploadDocument(dip.str);
+                    Toast.show("Inscription réussie ", context,
+                        duration: 3, gravity: Toast.BOTTOM);
+                    Coach coach =await Auth().getCurrentCoach();
+                    Navigator.push(context, MaterialPageRoute(
+                        builder: (context){
+                          return Welcome_Coach(title: "Coach", coach: coach, );
+                        }
+
+                    ));
+                  }
+                  else{
+                    Toast.show("Veuillez remplir les champs correctement", context, duration: 3);
+                  }
                 },
             ),
           ],
@@ -182,7 +202,6 @@ Future<Null> uploadPicture() async{
                 field("Prénom", firstname, false),
                 field("Adresse e-mail",email,false),
                 field("Mot de passe",password, true),
-                field("Confirmer le mot de passe", confirmpassword, true),
                 Align(
                   alignment: Alignment.topLeft,
                   child: Text("Date de naissance"),

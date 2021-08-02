@@ -6,6 +6,7 @@ import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:prof_sport/models/Client.dart';
 import 'package:prof_sport/models/Coach.dart';
 import 'package:prof_sport/models/ReservationService.dart';
+import 'package:prof_sport/paymentScreen.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -39,11 +40,19 @@ Future<Null> get_url(String path) async{
                         stream: FirebaseFirestore.instance.collection("reservations").
                         where("idClient",isEqualTo: widget.client.uid).snapshots(),
                         builder: (context,snapshot) {
+
                           return snapshot.data==null ? Text(""):ListView.builder(
                               shrinkWrap: true,
                               itemCount: snapshot.data?.docs.length,
                               itemBuilder: (context,index){
                                 DateTime dateDebut=snapshot.data?.docs[index]["dateDebut"].toDate();
+                                Reservation reservation=Reservation(id:snapshot.data?.docs[index]["id"],
+                                  idcoach: snapshot.data?.docs[index]["idCoach"],idclient: snapshot.data?.docs[index]["idClient"],
+                                  duration: snapshot.data?.docs[index]["duration"],
+                                  isConfirmed: snapshot.data?.docs[index]["isConfirmed"],
+                                  dateDebut:  snapshot.data?.docs[index]["dateDebut"].toDate(),
+                                  isPaid: snapshot.data?.docs[index]["isPaid"],
+                                );
                                 return StreamBuilder<QuerySnapshot>(
                                   stream: FirebaseFirestore.instance.collection("coaches").
                                   where("id",isEqualTo: snapshot.data?.docs[index]["idCoach"]).snapshots(),
@@ -79,39 +88,37 @@ Future<Null> get_url(String path) async{
                                         snapshot.data?.docs[index]["isConfirmed"] == false ?
                                         Wrap( children:
                                         [
-                                          ElevatedButton(onPressed: ()
-                                          {
-
-                                          },
-                                              child: Text("En Attente")),
-                                          SizedBox(width: 5,),
-                                          ElevatedButton(onPressed: ()async
-                                          {
-                                            ReservationService().refus_reservation(Reservation(id:snapshot.data?.docs[index]["id"],
-                                                idcoach: snapshot.data?.docs[index]["idCoach"],idclient: snapshot.data?.docs[index]["idClient"],
-                                                duration: snapshot.data?.docs[index]["duration"],
-                                                isConfirmed: snapshot.data?.docs[index]["isConfirmed"],
-                                                dateDebut:  snapshot.data?.docs[index]["dateDebut"].toDate()
-                                            ));
-                                          },
-                                            child: Text("Annuler"),
-                                            style: ElevatedButton.styleFrom(primary: Colors.red),
-
-                                          ),
+                                          IconButton(onPressed: (){}, icon: Icon(Icons.schedule, color: Colors.grey)),
+                                          IconButton(icon:Icon(Icons.close,color: Colors.red,
+                                            ),
+                                            onPressed: ()async
+                                            {
+                                            ReservationService().refus_reservation(reservation);
+                                            },
+                                            ),
 
                                         ],)  :
                                         Wrap(
                                           children:[
-                                            ElevatedButton(
+                                            !(snapshot.data?.docs[index]["isPaid"])?ElevatedButton(
                                               onPressed: ()
                                               {
-                                                print("validé");
+                                                print("Payer");
+                                                Navigator.push(context, MaterialPageRoute(builder: (context)=>paymentScreen(reservation : reservation)));
 
                                               },
-                                              child: Text("Validé"),
+                                              child: Text("Payer"),
                                               style: ElevatedButton.styleFrom(primary: Colors.green),
 
-                                            ),
+                                            ):ElevatedButton(
+                                              onPressed: ()
+                                              {
+                                                launch("tel:"+snap.data?.docs[0]["phone"]);
+
+                                              },
+                                              child: Text("Tel")
+                                    ),
+
                                             SizedBox(width: 5,),
 
                                             ElevatedButton(
@@ -119,7 +126,7 @@ Future<Null> get_url(String path) async{
                                               {
                                                 await launch("tel:"+snap.data?.docs[0]["phone"]) ;
                                               },
-                                              child: Icon(Icons.phone, color: Colors.white,),
+                                              child: Text("Annuler"),
                                               style: ElevatedButton.styleFrom(primary: Colors.green),
                                             )
                                           ],

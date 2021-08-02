@@ -16,7 +16,8 @@ class ReservationService{
       'idClient':idClient,
       'dateDebut':dateDebut,
       'duration':duration,
-      'isConfirmed': false
+      'isConfirmed': false,
+      'isPaid':false
     });
   }
   Future<List<Reservation>> get_coach_reservations(String idCoach) async{
@@ -25,7 +26,7 @@ class ReservationService{
     where("idCoach",isEqualTo: idCoach).snapshots().first).docs;
     var c;
     for(c in docs){
-      res.add(Reservation(id:c["id"] ,idclient:c["idClient"],idcoach:c["idCoach"],dateDebut:c["dateDebut"].toDate(),duration:c["duration"],isConfirmed:c["isConfirmed"]));
+      res.add(Reservation(id:c["id"] ,idclient:c["idClient"],idcoach:c["idCoach"],dateDebut:c["dateDebut"].toDate(),duration:c["duration"],isConfirmed:c["isConfirmed"],isPaid:c["isPaid"]));
       print("idClient${c["idClient"]}");
       print("idCoach${c["idCoach"]}");
       print("dateDebut${c["dateDebut"]}");
@@ -45,7 +46,21 @@ class ReservationService{
           'idClient': reservation.idclient,
           'dateDebut': reservation.dateDebut,
           'duration': reservation.duration,
-          'isConfirmed': true
+          'isConfirmed': true,
+          'isPaid':false
+        }
+    );
+  }
+  Future<Null> pay_reservation(Reservation reservation) async{
+    await FirebaseFirestore.instance.collection("reservations").doc(reservation.id).set(
+        {
+          'id':reservation.id,
+          'idCoach': reservation.idcoach,
+          'idClient': reservation.idclient,
+          'dateDebut': reservation.dateDebut,
+          'duration': reservation.duration,
+          'isConfirmed': true,
+          'isPaid':true
         }
     );
   }
@@ -62,7 +77,7 @@ class ReservationService{
     where("idClient",isEqualTo: idClient).snapshots().first).docs;
     var c;
     for(c in docs){
-      res.add(Reservation(id:c["id"],idclient:c["idClient"],idcoach:c["idCoach"],dateDebut:c["dateDebut"].toDate(),duration:c["duration"],isConfirmed:c["isConfirmed"]));
+      res.add(Reservation(id:c["id"],idclient:c["idClient"],idcoach:c["idCoach"],dateDebut:c["dateDebut"].toDate(),duration:c["duration"],isConfirmed:c["isConfirmed"],isPaid: c["isPaid"]));
       print("idClient${c["idClient"]}");
       print("idCoach${c["idCoach"]}");
       print("dateDebut${c["dateDebut"]}");

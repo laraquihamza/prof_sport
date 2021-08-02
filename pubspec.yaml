@@ -40,6 +40,7 @@ dependencies:
   file_picker: ^3.0.3
   email_validator: ^1.0.6
   url_launcher: ^6.0.9
+  flutter_credit_card: ^2.0.0
 
 
 dev_dependencies:
