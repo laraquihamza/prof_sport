@@ -25,7 +25,7 @@ class _CoachExercicesState extends State<CoachExercices> {
       appBar: custom_appbar("Exercices Coach", context, true),
       body: Column(
         children: [
-          field("Nom de l'exercice", name, false, controller_name     ),
+          field("Nom de l'exercice", name, false, controller_name  ),
           SizedBox(height:5),
           DropdownButton<int>(
             value: rep.str,
