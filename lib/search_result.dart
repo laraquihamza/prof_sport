@@ -29,7 +29,7 @@ class _SearchResult extends State<SearchResult> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: custom_appbar("Recherche", context),
+      appBar: custom_appbar("Recherche", context,false),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection("coaches").
         where("city",isEqualTo: widget.city).where("sport",isEqualTo:widget.sport).snapshots(),

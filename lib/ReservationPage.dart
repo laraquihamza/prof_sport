@@ -34,7 +34,7 @@ class _ReservationPageState extends State<ReservationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: custom_appbar("Réserver ", context),
+      appBar: custom_appbar("Réserver ", context,false),
       body: Column(
         children:
         [

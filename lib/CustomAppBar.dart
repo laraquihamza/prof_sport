@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prof_sport/main.dart';
 
 import 'models/AuthImplementation.dart';
-AppBar custom_appbar(String title, BuildContext context){
+AppBar custom_appbar(String title, BuildContext context, bool logout){
   return AppBar(
     elevation: 0,
       automaticallyImplyLeading: false,
@@ -14,7 +14,12 @@ AppBar custom_appbar(String title, BuildContext context){
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           InkWell(
-            onTap: (){Navigator.pop(context);},
+            onTap: (){
+              if(logout==true){
+                Auth().signOut();
+              }
+              Navigator.pop(context);
+              },
             child: Wrap(children: [
               Icon(
                 Icons.arrow_back,

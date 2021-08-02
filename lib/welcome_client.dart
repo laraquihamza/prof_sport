@@ -38,7 +38,7 @@ class _Welcome_Client extends State<Welcome_Client> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: custom_appbar(widget.title, context),
+      appBar: custom_appbar(widget.title, context,true),
       body:
           Column(
             children: [

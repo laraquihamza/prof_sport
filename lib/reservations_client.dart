@@ -33,7 +33,7 @@ Future<Null> get_url(String path) async{
   Widget build(BuildContext context) {
     ReservationService().get_client_reservations(widget.client.uid);
     return Scaffold(
-        appBar: custom_appbar(widget.title, context),
+        appBar: custom_appbar(widget.title, context,false),
         body:
                     StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance.collection("reservations").

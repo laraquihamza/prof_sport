@@ -41,7 +41,7 @@ class _Welcome_Coach extends State<Welcome_Coach> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: custom_appbar("Réserver ", context),
+        appBar: custom_appbar("Réserver ", context,true),
     body:
     StreamBuilder<QuerySnapshot>(
     stream: FirebaseFirestore.instance.collection("reservations").
