@@ -33,7 +33,7 @@ Future<Null> get_url(String path) async{
   Widget build(BuildContext context) {
     ReservationService().get_client_reservations(widget.client.uid);
     return Scaffold(
-        appBar: custom_appbar(widget.title, context),
+        appBar: custom_appbar(widget.title, context,false),
         body:
                     StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance.collection("reservations").
@@ -79,25 +79,19 @@ Future<Null> get_url(String path) async{
                                         snapshot.data?.docs[index]["isConfirmed"] == false ?
                                         Wrap( children:
                                         [
-                                          ElevatedButton(onPressed: ()
-                                          {
-
-                                          },
-                                              child: Text("En Attente")),
-                                          SizedBox(width: 5,),
-                                          ElevatedButton(onPressed: ()async
-                                          {
+                                          IconButton(onPressed: (){}, icon: Icon(Icons.schedule, color: Colors.grey)),
+                                          IconButton(icon:Icon(Icons.close,color: Colors.red,
+                                            ),
+                                            onPressed: ()async
+                                            {
                                             ReservationService().refus_reservation(Reservation(id:snapshot.data?.docs[index]["id"],
-                                                idcoach: snapshot.data?.docs[index]["idCoach"],idclient: snapshot.data?.docs[index]["idClient"],
-                                                duration: snapshot.data?.docs[index]["duration"],
-                                                isConfirmed: snapshot.data?.docs[index]["isConfirmed"],
-                                                dateDebut:  snapshot.data?.docs[index]["dateDebut"].toDate()
+                                            idcoach: snapshot.data?.docs[index]["idCoach"],idclient: snapshot.data?.docs[index]["idClient"],
+                                            duration: snapshot.data?.docs[index]["duration"],
+                                            isConfirmed: snapshot.data?.docs[index]["isConfirmed"],
+                                            dateDebut:  snapshot.data?.docs[index]["dateDebut"].toDate()
                                             ));
-                                          },
-                                            child: Text("Annuler"),
-                                            style: ElevatedButton.styleFrom(primary: Colors.red),
-
-                                          ),
+                                            },
+                                            ),
 
                                         ],)  :
                                         Wrap(
