@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:prof_sport/coach_exercices.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:prof_sport/models/Client.dart';
 import 'package:prof_sport/models/Coach.dart';
@@ -67,6 +68,7 @@ class _Welcome_Coach extends State<Welcome_Coach> {
     StreamBuilder(
     stream: FirebaseStorage.instance.ref(snap.data?.docs[0]["picture"]).getDownloadURL().asStream(),
     builder: (context,snap2){
+
     return                                 Container(width: 40,height: 40,decoration: BoxDecoration(
     shape: BoxShape.circle,
     image: DecorationImage(
@@ -93,7 +95,8 @@ class _Welcome_Coach extends State<Welcome_Coach> {
             idcoach: snapshot.data?.docs[index]["idCoach"],idclient: snapshot.data?.docs[index]["idClient"],
             duration: snapshot.data?.docs[index]["duration"],
             isConfirmed: snapshot.data?.docs[index]["isConfirmed"],
-            dateDebut:  snapshot.data?.docs[index]["dateDebut"].toDate()
+            dateDebut:  snapshot.data?.docs[index]["dateDebut"].toDate(),
+          isPaid: snapshot.data?.docs[index]["isPaid"]
         ));
     },
     child: Text("Valider")),
@@ -104,7 +107,8 @@ class _Welcome_Coach extends State<Welcome_Coach> {
     idcoach: snapshot.data?.docs[index]["idCoach"],idclient: snapshot.data?.docs[index]["idClient"],
     duration: snapshot.data?.docs[index]["duration"],
     isConfirmed: snapshot.data?.docs[index]["isConfirmed"],
-    dateDebut:  snapshot.data?.docs[index]["dateDebut"].toDate()
+    dateDebut:  snapshot.data?.docs[index]["dateDebut"].toDate(),
+      isPaid: snap.data?.docs[index]["isPaid"]
     ));
     },
     child: Text("Refuser")
@@ -117,26 +121,35 @@ class _Welcome_Coach extends State<Welcome_Coach> {
     Wrap(
       children:[
         ElevatedButton(
-          onPressed: ()
-          {
-            print("validé");
-
-          },
-          child: Text("Validé"),
-          style: ElevatedButton.styleFrom(primary: Colors.green),
-
-        ),
-        SizedBox(width: 5,),
-
-        ElevatedButton(
           onPressed: () async
           {
             await launch("tel:"+snap.data?.docs[0]["phone"]) ;
           },
           child: Icon(Icons.phone, color: Colors.white,),
           style: ElevatedButton.styleFrom(primary: Colors.green),
-        )
-      ],
+        ),
+        SizedBox(width: 5,),
+        ElevatedButton(
+          onPressed: ()
+          {
+            Navigator.push(context, MaterialPageRoute(builder: (context){
+              return CoachExercices(reservation: Reservation(id:snapshot.data?.docs[index]["id"],
+                  idcoach: snapshot.data?.docs[index]["idCoach"],idclient: snapshot.data?.docs[index]["idClient"],
+                  duration: snapshot.data?.docs[index]["duration"],
+                  isConfirmed: snapshot.data?.docs[index]["isConfirmed"],
+                  dateDebut:  snapshot.data?.docs[index]["dateDebut"].toDate(),
+                  isPaid: snapshot.data?.docs[index]["isPaid"]
+              ));
+            }));
+            print("validé");
+
+          },
+          child: Text("Programme"),
+          style: ElevatedButton.styleFrom(primary: Colors.green),
+
+        ),
+
+             ],
 
     ),
 

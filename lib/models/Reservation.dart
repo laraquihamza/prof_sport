@@ -6,6 +6,7 @@ class Reservation
   late DateTime dateDebut;
   late int duration;
   late bool isConfirmed ;
+  late bool isPaid;
 
-  Reservation({required this.idclient,required this.idcoach,required this.dateDebut,required this.duration,required this.isConfirmed, required this.id});
+  Reservation({required this.idclient,required this.idcoach,required this.dateDebut,required this.duration,required this.isConfirmed, required this.id, required this.isPaid});
 }
