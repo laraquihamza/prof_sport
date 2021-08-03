@@ -106,7 +106,7 @@ class _CoachExercicesState extends State<CoachExercices> {
 class Wrapper{
   late String str;
   Wrapper(String str){
-    this.str=str;
+    this.str=  str;
   }
 }
 class WrapperInt{
