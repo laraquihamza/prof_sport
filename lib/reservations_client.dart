@@ -9,7 +9,7 @@ import 'package:prof_sport/models/ReservationService.dart';
 import 'package:prof_sport/paymentScreen.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:prof_sport/client_exercices.dart';
 import 'models/Reservation.dart';
 class ListeDemande extends StatefulWidget {
   final String title;
@@ -124,9 +124,11 @@ Future<Null> get_url(String path) async{
                                             ElevatedButton(
                                               onPressed: () async
                                               {
-                                                await launch("tel:"+snap.data?.docs[0]["phone"]) ;
+                                                Navigator.push(context, MaterialPageRoute(builder: (context){
+                                                  return ClientExercices(reservation: reservation);
+                                                })) ;
                                               },
-                                              child: Text("Annuler"),
+                                              child: Text("Programme"),
                                               style: ElevatedButton.styleFrom(primary: Colors.green),
                                             )
                                           ],

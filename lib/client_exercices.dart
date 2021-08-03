@@ -9,20 +9,19 @@ import 'package:prof_sport/models/Reservation.dart';
 
 import 'models/AuthImplementation.dart';
 
-class CoachExercices extends StatefulWidget {
+class ClientExercices extends StatefulWidget {
   Reservation reservation;
-  CoachExercices({required this.reservation});
+  ClientExercices({required this.reservation});
   @override
-  _CoachExercicesState createState() => _CoachExercicesState();
+  _ClientExercicesState createState() => _ClientExercicesState();
 }
 
-class _CoachExercicesState extends State<CoachExercices> {
+class _ClientExercicesState extends State<ClientExercices> {
   Wrapper name=Wrapper("");
   String picture="";
   WrapperInt rep=WrapperInt(5);
   var controller_name = TextEditingController();
-
-
+  late String state;
   @override
   Widget build(BuildContext context) {
     return
@@ -32,57 +31,7 @@ class _CoachExercicesState extends State<CoachExercices> {
         body: Column(
           children: [
             Container(
-              height: MediaQuery.of(context).size.height*0.3,
-              child: Column(
-                children: [
-                  field("Nom de l'exercice", name, false, controller_name, null  ),
-                  SizedBox(height:5),
-                  DropdownButton<int>(
-                    value: rep.str,
-                    underline: Container(
-                      height: 2,
-                      color: Colors.blueAccent,
-                    ),
-                    onChanged: (int? newValue) {
-                      setState(() {
-                        rep.str = newValue!;
-                      });
-                    },
-                    items:[5,10,12,15,20,30,50]
-                        .map<DropdownMenuItem<int>>((int value) {
-                      return DropdownMenuItem<int>(
-                        value: value,
-                        child: Text(
-                          value.toString(),
-                          style: TextStyle(color: Colors.blueAccent),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  ElevatedButton(onPressed: (){
-                    uploadPicture();
-                  },
-                      child: Text(picture==""?"Veuillez uploader une image":"Image uploadée"
-                      )),
-                  SizedBox(height: 5.0,),
-                  ElevatedButton(onPressed: (){
-                    if(name.str != "" && picture !=""){
-                      Exercice exercice=ExerciceService().add_exercice(widget.reservation.id, picture, rep.str, name.str, "En Attente");
-                      setState(() {
-                        controller_name.clear();
-                        rep.str=5;
-                        picture="";
-                      });
-                    }
-
-                  }, child: Text("Ajouter exercice")),
-
-
-                ],
-              ),
-            ),
-            Container(
-              height: MediaQuery.of(context).size.height*0.55,
+              height: MediaQuery.of(context).size.height*0.90,
               child:                 StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance.collection("exercices").
                 where("idReservation",isEqualTo: widget.reservation.id).snapshots(),
@@ -94,20 +43,41 @@ class _CoachExercicesState extends State<CoachExercices> {
                         int rep=doc?["rep"];
                         String path=doc?["picture"];
                         print("picture:${path}");
+                        state=doc?["state"];
                         return Column(
                           children: [
                             Row(
                               children:[
                                 Text(doc!["name"]),
                                 Text(rep.toString()),
-                                IconButton(icon:Icon(Icons.close),onPressed: (){
-                                  ExerciceService().delete_exercice(Exercice(id: doc["id"],name: doc["name"],
-                                      idReservation: doc["idReservation"], state: doc["state"],picture: doc["picture"],rep: doc["rep"]));
-                                },),
-                                IconButton(icon:Icon(Icons.edit),onPressed: (){
-                                  edit_dialog(Exercice(id: doc["id"],name: doc["name"],
-                                      idReservation: doc["idReservation"], state: doc["state"],picture: doc["picture"],rep: doc["rep"]));
-                                },)
+                                DropdownButton<String>(
+                                  value: state,
+                                  underline: Container(
+                                    height: 2,
+                                    color: Colors.blueAccent,
+                                  ),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      state = newValue!;
+                                      ExerciceService().update_exercice(Exercice(id: doc["id"],
+                                          idReservation: doc["idReservation"], picture: doc["picture"],
+                                          name: doc["name"], state: state, rep: doc["rep"]));
+
+                                    });
+                                  },
+
+                                  items:<String>["En Attente", "Réussi","Raté"]
+                                      .map<DropdownMenuItem<String>>((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(
+                                        value,
+                                        style: TextStyle(color: Colors.blueAccent),
+                                      ),
+                                    );
+                                  }).toList(),
+                                )
+
 
                               ],
                             ),
