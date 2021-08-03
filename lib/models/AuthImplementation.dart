@@ -52,6 +52,7 @@ abstract class AuthImplementation {
   Future<String> getCurrentUserUid();
   Future<Client> getCurrentClient();
   Future<Coach> getCurrentCoach();
+  Future<Null> updatePicture(Client client,String path);
 
 }
 
@@ -167,8 +168,12 @@ class Auth implements AuthImplementation {
           c.data()!["firstname"],
           c.data()!["lastname"],
           c.data()!["phone"],
-        c.data()!["picture"]
-
+        c.data()!["picture"],
+        c.data()!["imc"],
+        c.data()!["img"],
+        c.data()!["height"],
+        c.data()!["weight"],
+        c.data()!["gender"]
       );
       return client;
  }
@@ -268,4 +273,49 @@ class Auth implements AuthImplementation {
 
     return user.user!.uid;
   }
+
+
+  Future<Null> updatePicture(Client client,String path) async{
+    print("updatemypicture:${path}");
+    await FirebaseFirestore.instance.collection("users").doc(client.uid).set(
+        {       'id': client.uid,
+          'firstname': client.firstname, // John Doe
+          'lastname': client.lastname, // Stokes and Sons
+          'city': client.city, // 42
+          'address': client.address, // 42
+          'phone': client.phone, // 42
+          'birthdate': client.birthdate,
+          'picture': path,
+          'imc':client.imc,
+          'img':client.img,
+          'height':client.height,
+          'weight':client.weight,
+          'gender':client.gender
+
+        }
+    );
+
+  }
+  Future<Null> updateClient(Client client) async{
+    await FirebaseFirestore.instance.collection("users").doc(client.uid).set(
+        {       'id': client.uid,
+          'firstname': client.firstname, // John Doe
+          'lastname': client.lastname, // Stokes and Sons
+          'city': client.city, // 42
+          'address': client.address, // 42
+          'phone': client.phone, // 42
+          'birthdate': client.birthdate,
+          'picture': client.picture,
+          'imc':client.imc,
+          'img':client.img,
+          'height':client.height,
+          'weight':client.weight,
+          'gender':client.gender
+
+        }
+    );
+
+  }
+
+
 }

@@ -93,7 +93,8 @@ class _SearchResult extends State<SearchResult> {
               })
           );
         },
-      )
+      ),
+
     );
   }
 }

@@ -62,7 +62,6 @@ class _ClientExercicesState extends State<ClientExercices> {
                                       ExerciceService().update_exercice(Exercice(id: doc["id"],
                                           idReservation: doc["idReservation"], picture: doc["picture"],
                                           name: doc["name"], state: state, rep: doc["rep"]));
-
                                     });
                                   },
 

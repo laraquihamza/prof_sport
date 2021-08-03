@@ -35,7 +35,8 @@ class _Welcome_Coach extends State<Welcome_Coach> {
   {
     var docs=(await FirebaseFirestore.instance.collection("users").
     where("id",isEqualTo: id).snapshots().first).docs[0];
-    client=Client(docs["id"], "", docs["birthdate"].toDate(),"", docs["city"], docs["address"], docs["firstname"], docs["lastname"], docs["phone"],docs["picture"]);
+    client=Client(docs["id"], "", docs["birthdate"].toDate(),"", docs["city"], docs["address"], docs["firstname"],
+        docs["lastname"], docs["phone"],docs["picture"],docs["imc"],docs["img"],docs["height"],docs["weight"],docs["gender"]);
     url=await Auth().downloadURL(client.picture);
   }
 
@@ -61,6 +62,10 @@ class _Welcome_Coach extends State<Welcome_Coach> {
     snap.data?.docs[0]["firstname"], snap.data?.docs[0]["lastname"],
     snap.data?.docs[0]["phone"],
     snap.data?.docs[0]["picture"],
+      snap.data?.docs[0]["imc"],
+      snap.data?.docs[0]["img"], snap.data?.docs[0]["height"],
+      snap.data?.docs[0]["weight"],
+      snap.data?.docs[0]["gender"],
     );
     DateTime dateDebut=snapshot.data?.docs[index]["dateDebut"].toDate();
     return
