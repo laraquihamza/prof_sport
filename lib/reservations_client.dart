@@ -130,7 +130,7 @@ Future<Null> get_url(String path) async{
                                                   return ClientExercices(reservation: reservation);
                                                 })) ;
                                               },
-                                              child: Text("Programme"),
+                                              child: Text("Programme "),
                                               style: ElevatedButton.styleFrom(primary: Colors.green),
                                             ):Text("")
                                           ],
