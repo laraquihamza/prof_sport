@@ -35,7 +35,7 @@ class _CoachExercicesState extends State<CoachExercices> {
               height: MediaQuery.of(context).size.height*0.3,
               child: Column(
                 children: [
-                  field("Nom de l'exercice", name, false, controller_name, null  ),
+                  field("Nom de l'exercice", name, false, controller_name),
                   SizedBox(height:5),
                   DropdownButton<int>(
                     value: rep.str,
@@ -145,8 +145,7 @@ class _CoachExercicesState extends State<CoachExercices> {
         builder: (context,setState){
           return Column(
             children: [
-
-              field("Nom de l'exercice", name, false, null,exercice.name),
+              field("Nom de l'exercice", name, false, TextEditingController(text:exercice.name)),
 
               DropdownButton<int>(
                 value: rep,
@@ -220,7 +219,7 @@ class _CoachExercicesState extends State<CoachExercices> {
   }
 
 
-  Widget field(String name_field, Wrapper str, bool isPassword, TextEditingController ? controller, String? hint) {
+  Widget field(String name_field, Wrapper str, bool isPassword, TextEditingController ? controller) {
     return Column(
       children: [
         Align(
@@ -238,7 +237,6 @@ class _CoachExercicesState extends State<CoachExercices> {
               });
             },
             decoration: InputDecoration(
-                hintText: hint,
                 border: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey)),
                 isDense: true)),

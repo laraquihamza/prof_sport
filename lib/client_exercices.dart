@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:prof_sport/CustomAppBar.dart';
+import 'package:prof_sport/ReviewPage.dart';
 import 'package:prof_sport/models/Exercice.dart';
 import 'package:prof_sport/models/ExerciceService.dart';
 import 'package:prof_sport/models/Reservation.dart';
+import 'package:prof_sport/models/ReservationService.dart';
 
 import 'models/AuthImplementation.dart';
 
@@ -28,78 +31,88 @@ class _ClientExercicesState extends State<ClientExercices> {
       Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: custom_appbar("Exercices Coach", context, true),
-        body: Column(
-          children: [
-            Container(
-              height: MediaQuery.of(context).size.height*0.90,
-              child:                 StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance.collection("exercices").
-                where("idReservation",isEqualTo: widget.reservation.id).snapshots(),
-                builder: (context,snapshot){
-                  return ListView.builder(
-                      itemCount: snapshot.data?.docs.length,
-                      itemBuilder: (context,index){
-                        var doc=snapshot.data?.docs[index];
-                        int rep=doc?["rep"];
-                        String path=doc?["picture"];
-                        print("picture:${path}");
-                        state=doc?["state"];
-                        return Column(
-                          children: [
-                            Row(
-                              children:[
-                                Text(doc!["name"]),
-                                Text(rep.toString()),
-                                DropdownButton<String>(
-                                  value: state,
-                                  underline: Container(
-                                    height: 2,
-                                    color: Colors.blueAccent,
-                                  ),
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      state = newValue!;
-                                      ExerciceService().update_exercice(Exercice(id: doc["id"],
-                                          idReservation: doc["idReservation"], picture: doc["picture"],
-                                          name: doc["name"], state: state, rep: doc["rep"]));
-                                    });
-                                  },
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                height: MediaQuery.of(context).size.height*0.80,
+                child:                 StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance.collection("exercices").
+                  where("idReservation",isEqualTo: widget.reservation.id).snapshots(),
+                  builder: (context,snapshot){
+                    return ListView.builder(
+                      scrollDirection: Axis.vertical,
+                        itemCount: snapshot.data?.docs.length,
+                        itemBuilder: (context,index){
+                          var doc=snapshot.data?.docs[index];
+                          int rep=doc?["rep"];
+                          String path=doc?["picture"];
+                          print("picture:${path}");
+                          state=doc?["state"];
+                          return Column(
+                            children: [
+                              Row(
+                                children:[
+                                  Text(doc!["name"]),
+                                  Text(rep.toString()),
+                                  DropdownButton<String>(
+                                    value: state,
+                                    underline: Container(
+                                      height: 2,
+                                      color: Colors.blueAccent,
+                                    ),
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        state = newValue!;
+                                        ExerciceService().update_exercice(Exercice(id: doc["id"],
+                                            idReservation: doc["idReservation"], picture: doc["picture"],
+                                            name: doc["name"], state: state, rep: doc["rep"]));
+                                      });
+                                    },
 
-                                  items:<String>["En Attente", "Réussi","Raté"]
-                                      .map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(
-                                        value,
-                                        style: TextStyle(color: Colors.blueAccent),
-                                      ),
-                                    );
-                                  }).toList(),
-                                )
+                                    items:<String>["En Attente", "Réussi","Raté"]
+                                        .map<DropdownMenuItem<String>>((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(
+                                          value,
+                                          style: TextStyle(color: Colors.blueAccent),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  )
 
 
-                              ],
-                            ),
-                            StreamBuilder(
-                                stream: FirebaseStorage.instance.ref(path).getDownloadURL().asStream(),
-                                builder: (context,snap2){
+                                ],
+                              ),
+                              StreamBuilder(
+                                  stream: FirebaseStorage.instance.ref(path).getDownloadURL().asStream(),
+                                  builder: (context,snap2){
 
-                                  return Container(width: 200,height: 200,decoration: BoxDecoration(
-                                      shape: BoxShape.rectangle,
-                                      image: DecorationImage(
+                                    return Container(width: 200,height: 200,decoration: BoxDecoration(
+                                        shape: BoxShape.rectangle,
+                                        image: DecorationImage(
 
-                                          image: NetworkImage(snap2.data.toString())
-                                      )
-                                  ),);
+                                            image: NetworkImage(snap2.data.toString())
+                                        )
+                                    ),);
 
-                                }),
-                          ],
-                        );
-                      });
-                },),
+                                  }),
+                            ],
+                          );
+                        });
+                  },
+                ),
 
-            )
-          ],
+              ),
+              ElevatedButton(onPressed: (){
+                ReservationService().finish_reservation(widget.reservation);
+                Navigator.push(context, MaterialPageRoute(builder: (context){
+                  return ReviewPage(widget.reservation);
+                }));
+              }, child: Text("Terminer le programme"))
+            ],
+          ),
         ),
 
       );

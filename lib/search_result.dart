@@ -5,6 +5,7 @@ import 'package:prof_sport/CustomAppBar.dart';
 import 'package:prof_sport/ReservationPage.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:prof_sport/models/Coach.dart';
+import 'package:prof_sport/models/ReviewService.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class SearchResult extends StatefulWidget {
@@ -23,18 +24,23 @@ class SearchResult extends StatefulWidget {
 
 class _SearchResult extends State<SearchResult> {
   String url="";
+  late double average;
   Future<Null> getUrl(String path) async{
     url=await Auth().downloadURL(path);
   }
+  Future<Null> get_average(Coach coach) async{
+    average= await ReviewService().get_average(coach);
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: custom_appbar("Recherche", context,false),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection("coaches").
         where("city",isEqualTo: widget.city).where("sport",isEqualTo:widget.sport).snapshots(),
         builder: (context,snapshot){
-
           return (snapshot.connectionState==ConnectionState.waiting?
           Center(child:CircularProgressIndicator()):
               ListView.builder(
@@ -44,6 +50,7 @@ class _SearchResult extends State<SearchResult> {
                 return StreamBuilder(
                   stream: FirebaseStorage.instance.ref(snapshot.data!.docs[index]["picture"]).getDownloadURL().asStream(),
                     builder: (context,snap){
+
                       return Row(
                         children: [
                       snapshot.data!.docs[index]["price"]<=widget.tarif?Row(children:[
@@ -60,7 +67,25 @@ class _SearchResult extends State<SearchResult> {
                         SizedBox(width: 5,),
                         Text("${snapshot.data!.docs[index]['price']}DH/h"),
                         SizedBox(width: 20,),
+                        FutureBuilder(
+                            future: get_average(Coach(snapshot.data!.docs[index]["id"],
+                      "",
+                      snapshot.data!.docs[index]["birthdate"].toDate(),
+                      "", snapshot.data!.docs[index]["city"],
+                      snapshot.data!.docs[index]["address"],
+                      snapshot.data!.docs[index]["firstname"],
+                      snapshot.data!.docs[index]["lastname"],
+                      snapshot.data!.docs[index]["phone"],
+                      snapshot.data!.docs[index]["picture"],
+                      snapshot.data!.docs[index]["price"],
+                      snapshot.data!.docs[index]["sport"],
+                      snapshot.data!.docs[index]["cin"],
+                      snapshot.data!.docs[index]["cv"],
+                      snapshot.data!.docs[index]["diplome"]
 
+                      )), builder: (context,s){
+                          return Text(average==-1.0?"Pas noté":average.toString());
+                        }),
 
                         //  Spacer(),
                         ElevatedButton(
@@ -77,7 +102,11 @@ class _SearchResult extends State<SearchResult> {
                           snapshot.data!.docs[index]["phone"],
                             snapshot.data!.docs[index]["picture"],
                               snapshot.data!.docs[index]["price"],
-                              snapshot.data!.docs[index]["sport"]
+                              snapshot.data!.docs[index]["sport"],
+                                snapshot.data!.docs[index]["cin"],
+                                snapshot.data!.docs[index]["cv"],
+                                snapshot.data!.docs[index]["diplome"]
+
                             ) ;
                             Navigator.push(context, MaterialPageRoute(builder: (context)=>ReservationPage(coach: coach,)
                               ));

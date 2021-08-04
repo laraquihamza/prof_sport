@@ -4,6 +4,9 @@ class Coach extends User2 {
   late String picture;
   late int price;
   late String sport;
+  late String cin;
+  late String cv;
+  late String diplome;
   Coach(
       String uid,
       String email,
@@ -16,7 +19,10 @@ class Coach extends User2 {
       String phone,
       String picture,
       int price,
-      String sport
+      String sport,
+      String cin,
+      String cv,
+      String diplome
       ) : super('', '', DateTime.now(), '', '', '', '', '', '') {
     this.uid = uid;
     this.email = email;
@@ -30,5 +36,8 @@ class Coach extends User2 {
     this.picture=picture;
     this.price=price;
     this.sport=sport;
+    this.cin=cin;
+    this.cv=cv;
+    this.diplome=diplome;
   }
 }

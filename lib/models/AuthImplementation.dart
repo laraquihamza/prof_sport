@@ -53,8 +53,10 @@ abstract class AuthImplementation {
   Future<Client> getCurrentClient();
   Future<Coach> getCurrentCoach();
   Future<Null> updatePicture(Client client,String path);
+  Future<Null> updateCoach(Coach coach);
 
-}
+
+  }
 
 class Auth implements AuthImplementation {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -197,7 +199,10 @@ class Auth implements AuthImplementation {
         c.data()!["phone"],
         c.data()!["picture"],
       c.data()!["price"],
-      c.data()!["sport"]
+      c.data()!["sport"],
+      c.data()!["cin"],
+      c.data()!["cv"],
+      c.data()!["diplome"]
     );
     return coach;
   }
@@ -311,6 +316,26 @@ class Auth implements AuthImplementation {
           'height':client.height,
           'weight':client.weight,
           'gender':client.gender
+
+        }
+    );
+
+  }
+  Future<Null> updateCoach(Coach coach) async{
+    await FirebaseFirestore.instance.collection("coaches").doc(coach.uid).set(
+        {             'id': coach.uid,
+          'firstname': coach.firstname, // John Doe
+          'lastname': coach.lastname, // Stokes and Sons
+          'city': coach.city, // 42
+          'address': coach.address, // 42
+          'phone': coach.phone, // 42
+          'birthdate': coach.birthdate,
+          'cin': coach.cin,
+          'cv':coach.cv,
+          'picture':coach.picture,
+          'diplome':coach.diplome,
+          'price':coach.price,
+          'sport':coach.sport,
 
         }
     );

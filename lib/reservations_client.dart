@@ -52,6 +52,7 @@ Future<Null> get_url(String path) async{
                                   isConfirmed: snapshot.data?.docs[index]["isConfirmed"],
                                   dateDebut:  snapshot.data?.docs[index]["dateDebut"].toDate(),
                                   isPaid: snapshot.data?.docs[index]["isPaid"],
+                                  isOver: snapshot.data?.docs[index]["isPaid"]
                                 );
                                 return StreamBuilder<QuerySnapshot>(
                                   stream: FirebaseFirestore.instance.collection("coaches").
@@ -62,7 +63,8 @@ Future<Null> get_url(String path) async{
                                         snap.data?.docs[0]["firstname"], snap.data?.docs[0]["lastname"],
                                         snap.data?.docs[0]["phone"],
                                         snap.data?.docs[0]["picture"],
-                                        snap.data?.docs[0]["price"],snap.data?.docs[0]["sport"]);
+                                        snap.data?.docs[0]["price"],snap.data?.docs[0]["sport"],snap.data?.docs[0]["cin"],
+                                        snap.data?.docs[0]["cv"],snap.data?.docs[0]["diplome"]);
                                     return
                                       snapshot.data==null ? Text(""):Row(children:[
                                         StreamBuilder(
@@ -121,7 +123,7 @@ Future<Null> get_url(String path) async{
 
                                             SizedBox(width: 5,),
 
-                                            ElevatedButton(
+                                            !(snapshot.data?.docs[index]["isOver"])?ElevatedButton(
                                               onPressed: () async
                                               {
                                                 Navigator.push(context, MaterialPageRoute(builder: (context){
@@ -130,7 +132,7 @@ Future<Null> get_url(String path) async{
                                               },
                                               child: Text("Programme"),
                                               style: ElevatedButton.styleFrom(primary: Colors.green),
-                                            )
+                                            ):Text("")
                                           ],
 
                                         ),
