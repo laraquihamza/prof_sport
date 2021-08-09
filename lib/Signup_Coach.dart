@@ -10,6 +10,8 @@ import 'package:prof_sport/models/Coach.dart';
 import 'package:prof_sport/welcome_coach.dart';
 import 'package:toast/toast.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 
 class SignupCoach extends StatefulWidget {
   SignupCoach({Key? key, required this.title}) : super(key: key);
@@ -187,7 +189,14 @@ Future<Null> uploadPicture() async{
                          height: 120,
                          decoration: new BoxDecoration(
                            shape: BoxShape.circle,
-                             image: new DecorationImage(
+                             image: kIsWeb
+                                 ? DecorationImage(
+
+                               image: new NetworkImage(imageUrl.str),
+                               fit: BoxFit.fill,
+                             )
+                                 : DecorationImage(
+
                                image: new FileImage(File(imageUrl.str)),
                                fit: BoxFit.fill,
                              )

@@ -1,12 +1,34 @@
+import 'dart:core';
+import 'dart:core';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:prof_sport/models/Client.dart';
 import 'package:prof_sport/models/Coach.dart';
 import 'package:prof_sport/models/Reservation.dart';
 class ReservationService{
+  Future<bool> isAlreadyBooked(Client client,DateTime start1,int duration) async{
+    var docs=(await FirebaseFirestore.instance.collection("reservations").
+    where("idClient",isEqualTo: client.uid).snapshots().first).docs;
+    var c;
+    for(c in docs){
+      int s2=c["dateDebut"].toDate().millisecondsSinceEpoch;
+      int e2=c["dateDebut"].toDate().add(Duration(hours: c["duration"])).millisecondsSinceEpoch;
+      int s1= start1.millisecondsSinceEpoch;
+      int e1=start1.add(Duration(hours: duration)).millisecondsSinceEpoch;
+      if ((e2>=s1 && e2<=e1)|| (s2>=s1 && s2<=e1)) {
+        return true;
+      } else {
+
+      }
+    }
+    return false;
+  }
+
   void add_reservation(String idCoach,String idClient,DateTime dateDebut,int duration){
     var doc=FirebaseFirestore.instance.collection("reservations").doc();
 

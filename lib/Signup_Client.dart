@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,6 +7,7 @@ import 'package:prof_sport/models/Client.dart';
 import 'package:prof_sport/welcome_client.dart';
 import 'package:toast/toast.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 
 class SignupClient extends StatefulWidget {
@@ -140,7 +140,14 @@ class _SignupClient extends State<SignupClient> {
                         height: 120,
                         decoration: new BoxDecoration(
                             shape: BoxShape.circle,
-                            image: new DecorationImage(
+                            image: kIsWeb
+                                ? DecorationImage(
+
+                              image: new NetworkImage(imageUrl.str),
+                              fit: BoxFit.fill,
+                            )
+                                : DecorationImage(
+
                               image: new FileImage(File(imageUrl.str)),
                               fit: BoxFit.fill,
                             )

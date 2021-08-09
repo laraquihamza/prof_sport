@@ -1,22 +1,55 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:prof_sport/CoachOuClient.dart.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:prof_sport/models/Coach.dart';
+import 'package:prof_sport/models/NotificationService.dart';
 import 'package:prof_sport/welcome_coach.dart';
 import 'package:toast/toast.dart';
 import 'CoachOuClient.dart.dart';
 import 'models/Client.dart';
 import 'welcome_client.dart';
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+  print('Handling a background message ${message.messageId}');
+}
+late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+late AndroidNotificationChannel channel;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  flutterLocalNotificationsPlugin=FlutterLocalNotificationsPlugin();
+  channel=AndroidNotificationChannel("id","main channel","description");
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+      AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
+  /// Update the iOS foreground notification presentation options to allow
+  /// heads up notifications.
+  await FirebaseMessaging.instance
+      .setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  runApp(MyApp( await Auth().user_type()));
 }
 
 class MyApp extends StatelessWidget {
+  late String type;
+  MyApp(String type){
+    this.type=type;
+  }
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -35,11 +68,33 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Coachinow'),
+      home: type=="client"?
+      FutureBuilder(
+        future: Auth().getCurrentClient(),
+        builder: (context,snap){
+          return Welcome_Client(title:"",client:snap.data as Client);
+        },
+      ):(type=="coach"?
+      FutureBuilder(
+        future: Auth().getCurrentCoach(),
+        builder: (context,snap){
+          return Welcome_Coach(title:"",coach:snap.data as Coach);
+        },
+      ):MyHomePage(title: "Coachinow",)
+      )
+
     );
   }
 }
+class MessageArguments {
+  late RemoteMessage message;
+  late bool isTrue;
+  MessageArguments(RemoteMessage message,bool isTrue){
+    this.message=message;
+    this.isTrue=isTrue;
+  }
 
+}
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key? key, required this.title}) : super(key: key);
 
@@ -62,6 +117,47 @@ class _MyHomePageState extends State<MyHomePage> {
   Color col_main = Colors.blueAccent;
   String email = "";
   String password = "";
+
+  void initState() {
+    super.initState();
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) {
+      if (message != null) {
+        Navigator.pushNamed(context, '/message',
+            arguments: MessageArguments(message, true));
+      }
+    });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification notification = message.notification!;
+      AndroidNotification android = message.notification!.android!;
+      if (notification != null && android != null ) {
+        flutterLocalNotificationsPlugin.show(
+            notification.hashCode,
+            notification.title,
+            notification.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                channel.id,
+                channel.name,
+                channel.description,
+                // TODO add a proper drawable resource to android, for now using
+                //      one that already exists in example app.
+                icon: 'launch_background',
+              ),
+            ));
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('A new onMessageOpenedApp event was published!');
+      Navigator.pushNamed(context, '/message',
+          arguments: MessageArguments(message, true));
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -159,6 +255,7 @@ class _MyHomePageState extends State<MyHomePage> {
             late Coach coach;
             try {
     String uid = await auth.SignIn(email, password);
+    NotificationService().saveDeviceToken(Auth().getCurrentUserUid());
     if(await auth.user_type()=="client"){
     client = await auth.getCurrentClient();
     Toast.show("Connexion réussie ", context,
@@ -169,6 +266,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     }
     else if(await auth.user_type()=="coach"){
+      NotificationService().saveDeviceToken(Auth().getCurrentUserUid());
       coach = await auth.getCurrentCoach();
       Toast.show("Connexion réussie ", context,
           duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);

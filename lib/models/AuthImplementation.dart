@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -59,9 +61,10 @@ abstract class AuthImplementation {
   }
 
 class Auth implements AuthImplementation {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  Future<String> SignIn(String email, String password) async {
-    UserCredential user = await _firebaseAuth.signInWithEmailAndPassword(
+   FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+   Future<String> SignIn(String email, String password) async {
+     _firebaseAuth.setPersistence(Persistence.SESSION);
+     UserCredential user = await _firebaseAuth.signInWithEmailAndPassword(
         email: email, password: password);
     return user.user!.uid;
   }
@@ -148,8 +151,11 @@ class Auth implements AuthImplementation {
 // savoir l'utlilisateur logué au moment réel //
 
   Future<String> getCurrentUserUid() async {
-    User user = await _firebaseAuth.currentUser!;
-    return user.uid;
+    User? user = await _firebaseAuth.currentUser;
+    if(user!=null){
+      return user.uid;
+    }
+    return "error";
   }
 
   Future<Client> getCurrentClient() async {
@@ -231,6 +237,7 @@ class Auth implements AuthImplementation {
 // Methode pour le Signup //
 
   Future<String> SignInCoach(String email, String password) async {
+    _firebaseAuth.setPersistence(Persistence.SESSION);
     UserCredential user = await _firebaseAuth.signInWithEmailAndPassword(
         email: email, password: password);
     return user.user!.uid;

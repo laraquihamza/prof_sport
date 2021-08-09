@@ -34,7 +34,7 @@ Future<Null> get_url(String path) async{
   Widget build(BuildContext context) {
     ReservationService().get_client_reservations(widget.client.uid);
     return Scaffold(
-        appBar: custom_appbar(widget.title, context,false),
+        appBar: custom_appbar(widget.title, context,false,false),
         body:
                     StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance.collection("reservations").
@@ -52,7 +52,7 @@ Future<Null> get_url(String path) async{
                                   isConfirmed: snapshot.data?.docs[index]["isConfirmed"],
                                   dateDebut:  snapshot.data?.docs[index]["dateDebut"].toDate(),
                                   isPaid: snapshot.data?.docs[index]["isPaid"],
-                                  isOver: snapshot.data?.docs[index]["isPaid"]
+                                  isOver: snapshot.data?.docs[index]["isOver"]
                                 );
                                 return StreamBuilder<QuerySnapshot>(
                                   stream: FirebaseFirestore.instance.collection("coaches").

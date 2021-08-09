@@ -383,24 +383,27 @@ class _Welcome_Client extends State<Welcome_Client> {
   @override
   Widget build(BuildContext context) {
     pages=[home_page(),infos_page()];
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: tabindex,
-        onTap: (a){
-          setState(() {
-            tabindex = a;
+    return WillPopScope(
+      onWillPop: ()async=>false,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: tabindex,
+          onTap: (a){
+            setState(() {
+              tabindex = a;
 
-          });
-        },
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.height),label: "Réserver",),
-          BottomNavigationBarItem(icon: Icon(Icons.clear), label: "Modifier Infos",),
-        ],
+            });
+          },
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.height),label: "Réserver",),
+            BottomNavigationBarItem(icon: Icon(Icons.clear), label: "Modifier Infos",),
+          ],
+        ),
+        appBar: custom_appbar(widget.title, context,true,true),
+        body: pages[tabindex]
+
       ),
-      appBar: custom_appbar(widget.title, context,true),
-      body: pages[tabindex]
-
     );
   }
 

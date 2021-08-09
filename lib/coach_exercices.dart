@@ -28,7 +28,7 @@ class _CoachExercicesState extends State<CoachExercices> {
     return
       Scaffold(
         resizeToAvoidBottomInset: false,
-        appBar: custom_appbar("Exercices Coach", context, true),
+        appBar: custom_appbar("Exercices Coach", context, true,false),
         body: Column(
           children: [
             Container(
@@ -59,8 +59,8 @@ class _CoachExercicesState extends State<CoachExercices> {
                       );
                     }).toList(),
                   ),
-                  ElevatedButton(onPressed: (){
-                    uploadPicture();
+                  ElevatedButton(onPressed: ()async{
+                    await uploadPicture();
                   },
                       child: Text(picture==""?"Veuillez uploader une image":"Image uploadée"
                       )),
@@ -114,14 +114,28 @@ class _CoachExercicesState extends State<CoachExercices> {
                             StreamBuilder(
                                 stream: FirebaseStorage.instance.ref(path).getDownloadURL().asStream(),
                                 builder: (context,snap2){
-
-                                  return Container(width: 200,height: 200,decoration: BoxDecoration(
+                                  print("picture:"+picture);
+                                  return Container(width: 200,height: 200,decoration:
+                                  snap2.hasData?
+                                  BoxDecoration(
                                       shape: BoxShape.rectangle,
                                       image: DecorationImage(
 
                                           image: NetworkImage(snap2.data.toString())
+                                  )
+                                  ):
+                                  BoxDecoration(
+                                      shape: BoxShape.rectangle,
+                                      image: DecorationImage(
+
+                                          image: AssetImage(picture)
                                       )
-                                  ),);
+                                  )
+                                  )
+
+
+
+                                  ;
 
                                 }),
                           ],
@@ -171,8 +185,9 @@ class _CoachExercicesState extends State<CoachExercices> {
                 }).toList(),
               ),
 
-              ElevatedButton(onPressed: (){
+              ElevatedButton(onPressed: ()async{
                 uploadPicture_dialog(exercice);
+
               },
                   child: Text(exercice.picture==""?"Veuillez uploader une image":"Image uploadée")
               ),
@@ -197,7 +212,7 @@ class _CoachExercicesState extends State<CoachExercices> {
     // show the dialog
     showDialog(
         context: context,
-        builder: (BuildContext context) {
+        builder: (BuildContext dialogcontext) {
           return alert;
         });
   }
@@ -207,6 +222,7 @@ class _CoachExercicesState extends State<CoachExercices> {
     setState(() {
       picture = image!.path;
     });
+    await Auth().UploadDocument(picture);
   }
   Future<Null> uploadPicture_dialog(Exercice exercice) async {
     final ImagePicker _picker = ImagePicker();

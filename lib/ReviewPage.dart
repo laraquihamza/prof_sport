@@ -20,7 +20,7 @@ class _ReviewPageState extends State<ReviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: custom_appbar("Review", context, false),
+      appBar: custom_appbar("Review", context, false,false),
       body: Column(
         children:
         [

@@ -22,7 +22,7 @@ class Coach extends User2 {
       String sport,
       String cin,
       String cv,
-      String diplome
+      String diplome,
       ) : super('', '', DateTime.now(), '', '', '', '', '', '') {
     this.uid = uid;
     this.email = email;

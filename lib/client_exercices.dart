@@ -30,7 +30,7 @@ class _ClientExercicesState extends State<ClientExercices> {
     return
       Scaffold(
         resizeToAvoidBottomInset: false,
-        appBar: custom_appbar("Exercices Coach", context, true),
+        appBar: custom_appbar("Exercices Coach", context, true,false),
         body: SingleChildScrollView(
           child: Column(
             children: [

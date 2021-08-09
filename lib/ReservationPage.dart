@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:prof_sport/models/Coach.dart';
+import 'package:prof_sport/models/NotificationService.dart';
 import 'package:prof_sport/models/ReservationService.dart';
 import 'package:toast/toast.dart';
 
 import 'CustomAppBar.dart';
 import 'main.dart';
 import 'models/AuthImplementation.dart';
+import 'models/Client.dart';
 
 class ReservationPage extends StatefulWidget {
   @override
@@ -34,7 +36,7 @@ class _ReservationPageState extends State<ReservationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: custom_appbar("Réserver ", context,false),
+      appBar: custom_appbar("Réserver ", context,false,false),
       body: Column(
         children:
         [
@@ -125,12 +127,25 @@ class _ReservationPageState extends State<ReservationPage> {
 
           Center(child: ElevatedButton(
             onPressed: () async {
-
-
-              ReservationService().add_reservation(widget.coach.uid, await Auth().getCurrentUserUid(), reservation!.add(Duration(hours:time!.hour,minutes: time!.minute,seconds: 0)), duration);
-              Toast.show("Réservation réussie", context);
-              Navigator.pop(context);
-              print("nada"); },
+              Client client = await Auth().getCurrentClient();
+              if (await ReservationService().isAlreadyBooked(client,
+                  reservation!.add(Duration(
+                      hours: time!.hour, minutes: time!.minute, seconds: 0)),
+                  duration)) {
+                Toast.show("Already Booked", context);
+              }
+              else {
+                ReservationService().add_reservation(
+                    widget.coach.uid, await Auth().getCurrentUserUid(),
+                    reservation!.add(Duration(
+                        hours: time!.hour, minutes: time!.minute, seconds: 0)),
+                    duration);
+                NotificationService().sendNotification(
+                    widget.coach.uid, "Vous avez une nouvelle réservation");
+                Toast.show("Réservation réussie", context);
+                Navigator.pop(context);
+              }
+            },
             child: Text("Reserver"),
           ),)
 

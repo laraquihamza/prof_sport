@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prof_sport/main.dart';
 
 import 'models/AuthImplementation.dart';
-AppBar custom_appbar(String title, BuildContext context, bool logout){
+AppBar custom_appbar(String title, BuildContext context, bool logout, bool isFirstPage){
   return AppBar(
     elevation: 0,
       automaticallyImplyLeading: false,
@@ -13,6 +13,7 @@ AppBar custom_appbar(String title, BuildContext context, bool logout){
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          !isFirstPage?
           InkWell(
             onTap: (){
               if(logout==true){
@@ -30,7 +31,7 @@ AppBar custom_appbar(String title, BuildContext context, bool logout){
                 style: TextStyle(color: Colors.black),
               )
             ]),
-          ),
+          ):Text(""),
           InkWell(
             child:Wrap(children: [
               Icon(
@@ -47,7 +48,7 @@ AppBar custom_appbar(String title, BuildContext context, bool logout){
             onTap: (){
               Auth().signOut();
               Navigator.push(context, MaterialPageRoute(builder: (context){
-                return MyApp();
+                return MyApp("error");
               }));
             },
 

@@ -48,24 +48,27 @@ class _Welcome_Coach extends State<Welcome_Coach> {
   @override
   Widget build(BuildContext context) {
     tabs=[reservations_coach(context),infos_page()];
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-        appBar: custom_appbar("Réserver ", context,true),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: tabindex,
-          onTap: (a){
-            setState(() {
-              tabindex = a;
+    return WillPopScope(
+      onWillPop: ()async=>false,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+          appBar: custom_appbar("Réserver ", context,true,true),
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: tabindex,
+            onTap: (a){
+              setState(() {
+                tabindex = a;
 
-            });
-          },
-          items: [
-            BottomNavigationBarItem(icon: Icon(Icons.height),label: "Réserver",),
-            BottomNavigationBarItem(icon: Icon(Icons.clear), label: "Modifier Infos",),
-          ],
-        ),
+              });
+            },
+            items: [
+              BottomNavigationBarItem(icon: Icon(Icons.height),label: "Réserver",),
+              BottomNavigationBarItem(icon: Icon(Icons.clear), label: "Modifier Infos",),
+            ],
+          ),
 
-        body: tabs[tabindex]
+          body: tabs[tabindex]
+      ),
     );
 
 
@@ -76,10 +79,19 @@ class _Welcome_Coach extends State<Welcome_Coach> {
         stream: FirebaseFirestore.instance.collection("reservations").
         where("idCoach",isEqualTo: widget.coach.uid).snapshots(),
         builder: (context,snapshot) {
+
           return snapshot.data==null ? Text("null"):ListView.builder(
               shrinkWrap: true,
               itemCount: snapshot.data?.docs.length,
               itemBuilder: (context,index){
+                Reservation reservation=Reservation(id:snapshot.data?.docs[index]["id"],
+                    idcoach: snapshot.data?.docs[index]["idCoach"],idclient: snapshot.data?.docs[index]["idClient"],
+                    duration: snapshot.data?.docs[index]["duration"],
+                    isConfirmed: snapshot.data?.docs[index]["isConfirmed"],
+                    dateDebut:  snapshot.data?.docs[index]["dateDebut"].toDate(),
+                    isPaid: snapshot.data?.docs[index]["isPaid"],
+                    isOver: snapshot.data?.docs[index]["isOver"]
+                );
                 return snapshot.data==null?Text(""):StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance.collection("users").
                     where("id",isEqualTo: snapshot.data?.docs[index]["idClient"]).snapshots(),
@@ -121,27 +133,13 @@ class _Welcome_Coach extends State<Welcome_Coach> {
                           [
                             ElevatedButton(onPressed: ()
                             {
-                              ReservationService().confirm_reservation(Reservation(id:snapshot.data?.docs[index]["id"],
-                                  idcoach: snapshot.data?.docs[index]["idCoach"],idclient: snapshot.data?.docs[index]["idClient"],
-                                  duration: snapshot.data?.docs[index]["duration"],
-                                  isConfirmed: snapshot.data?.docs[index]["isConfirmed"],
-                                  dateDebut:  snapshot.data?.docs[index]["dateDebut"].toDate(),
-                                  isPaid: snapshot.data?.docs[index]["isPaid"],
-                                  isOver: snapshot.data?.docs[index]["isOver"]
-                              ));
+                              ReservationService().confirm_reservation(reservation);
                             },
                                 child: Text("Valider")),
                             SizedBox(width: 5,),
                             ElevatedButton(onPressed: ()async
                             {
-                              ReservationService().refus_reservation(Reservation(id:snapshot.data?.docs[index]["id"],
-                                  idcoach: snapshot.data?.docs[index]["idCoach"],idclient: snapshot.data?.docs[index]["idClient"],
-                                  duration: snapshot.data?.docs[index]["duration"],
-                                  isConfirmed: snapshot.data?.docs[index]["isConfirmed"],
-                                  dateDebut:  snapshot.data?.docs[index]["dateDebut"].toDate(),
-                                  isPaid: snap.data?.docs[index]["isPaid"],
-                                  isOver: snap.data?.docs[index]["isOver"]
-                              ));
+                              ReservationService().refus_reservation(reservation);
                             },
                               child: Text("Refuser")
 
