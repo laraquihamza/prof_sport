@@ -69,7 +69,12 @@ class _ChatScreenState extends State<ChatScreenClient> {
                     ,
                   )
                   ,ElevatedButton(onPressed: (){
-                    MessageService().sendMessage(widget.client.uid,widget.coach.uid , text);
+                    if(text!="") {
+                      MessageService().sendMessage(
+                          widget.client.uid, widget.coach.uid, text);
+                    }
+                    controller.text="";
+                    text="";
                   }, child: Text("envoyer"))
                 ],
               )

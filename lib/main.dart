@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:prof_sport/CoachOuClient.dart.dart';
+import 'package:prof_sport/ResetPassword.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:prof_sport/models/Coach.dart';
 import 'package:prof_sport/models/NotificationService.dart';
@@ -127,15 +128,23 @@ class _MyHomePageState extends State<MyHomePage> {
                 textfield_email(),
                 textfield_password(),
                 button_login(),
-                Text(
-                  "Mot de passe oublié ?",
-                  style: TextStyle(
-                      color: Colors.black,
-                      decoration: TextDecoration.underline),
+                InkWell(
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context){
+                      return resetPassword();
+                    }));
+                  },
+                  child:                 Text(
+                    "Mot de passe oublié ?",
+                    style: TextStyle(
+                        color: Colors.black,
+                        decoration: TextDecoration.underline),
+                  ),
                 ),
               ],
             ),
             button_signup(),
+
           ],
         ),
       )),
