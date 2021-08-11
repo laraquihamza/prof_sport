@@ -93,7 +93,7 @@ class _SearchResult extends State<SearchResult> {
                             onPressed: ()
                           {
                             Coach coach=Coach(snapshot.data!.docs[index]["id"],
-                          "",
+                          snapshot.data!.docs[index]["email"],
                           snapshot.data!.docs[index]["birthdate"].toDate(),
                           "", snapshot.data!.docs[index]["city"],
                           snapshot.data!.docs[index]["address"],

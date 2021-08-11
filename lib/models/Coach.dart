@@ -7,6 +7,7 @@ class Coach extends User2 {
   late String cin;
   late String cv;
   late String diplome;
+  late String email;
   Coach(
       String uid,
       String email,

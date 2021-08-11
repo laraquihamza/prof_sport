@@ -1,9 +1,14 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server/gmail.dart';
+import 'package:prof_sport/ChatScreenCoach.dart';
 import 'package:prof_sport/coach_exercices.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:prof_sport/models/Client.dart';
@@ -30,6 +35,32 @@ class _Welcome_Coach extends State<Welcome_Coach> {
   List<Reservation> reservations = [];
   late Client client;
   String url="";
+  String username = 'coachinowtest@gmail.com';
+  String password = '1234@Abcd';
+  late Timer timer;
+  late bool isVerified;
+  getIsVerified()async{
+      isVerified= await Auth().isVerified();
+  }
+   @override
+   void initState(){
+     super.initState();
+     getIsVerified();
+     timer= Timer.periodic(Duration(milliseconds: 500),(timer)async{
+       Auth().reload();
+       setState(() {
+         getIsVerified();
+         if(isVerified){
+           timer.cancel();
+         }
+       });
+
+     });
+   }
+   @override void dispose(){
+     timer.cancel();
+      super.dispose();
+   }
   Future<Null>get_reservations() async{
     reservations.clear();
     reservations=await widget.reservationService.get_coach_reservations(widget.coach.uid);
@@ -39,42 +70,56 @@ class _Welcome_Coach extends State<Welcome_Coach> {
   {
     var docs=(await FirebaseFirestore.instance.collection("users").
     where("id",isEqualTo: id).snapshots().first).docs[0];
-    client=Client(docs["id"], "", docs["birthdate"].toDate(),"", docs["city"], docs["address"], docs["firstname"],
+    client=Client(docs["id"], docs["email"], docs["birthdate"].toDate(),"", docs["city"], docs["address"], docs["firstname"],
         docs["lastname"], docs["phone"],docs["picture"],docs["imc"],docs["img"],docs["height"],docs["weight"],docs["gender"]);
     url=await Auth().downloadURL(client.picture);
+    print("email:${docs["email"]}");
   }
   int tabindex=0;
   List<Widget> tabs=[];
   @override
   Widget build(BuildContext context) {
+    getIsVerified();
     tabs=[reservations_coach(context),infos_page()];
-    return WillPopScope(
-      onWillPop: ()async=>false,
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-          appBar: custom_appbar("Réserver ", context,true,true),
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: tabindex,
-            onTap: (a){
-              setState(() {
-                tabindex = a;
+            return WillPopScope(
+              onWillPop: ()async=>false,
+              child: isVerified?Scaffold(
+                  resizeToAvoidBottomInset: false,
+                  appBar: custom_appbar("Réserver ", context,true,true),
+                  bottomNavigationBar: BottomNavigationBar(
+                    currentIndex: tabindex,
+                    onTap: (a){
+                      setState(() {
+                        tabindex = a;
 
-              });
-            },
-            items: [
-              BottomNavigationBarItem(icon: Icon(Icons.height),label: "Réserver",),
-              BottomNavigationBarItem(icon: Icon(Icons.clear), label: "Modifier Infos",),
-            ],
-          ),
+                      });
+                    },
+                    items: [
+                      BottomNavigationBarItem(icon: Icon(Icons.height),label: "Réserver",),
+                      BottomNavigationBarItem(icon: Icon(Icons.clear), label: "Modifier Infos",),
+                    ],
+                  ),
 
-          body: tabs[tabindex]
-      ),
-    );
+                  body: tabs[tabindex]
+    ):Scaffold(
+    appBar: custom_appbar("title", context, true, true),
+                body: Column(
+                  children: [
+                    Text("Mail pas vérifié"),
+                    ElevatedButton(onPressed: (){
+                      Auth().sendVerificationEmail();
+                    }, child: Text("Renvoyer lien de vérification"))
+                  ],
+                ),
+    ));
+
 
 
   }
   
   Widget reservations_coach(BuildContext context){
+    final smtpServer = gmail(username, password);
+
     return StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection("reservations").
         where("idCoach",isEqualTo: widget.coach.uid).snapshots(),
@@ -96,7 +141,7 @@ class _Welcome_Coach extends State<Welcome_Coach> {
                     stream: FirebaseFirestore.instance.collection("users").
                     where("id",isEqualTo: snapshot.data?.docs[index]["idClient"]).snapshots(),
                     builder: (context,snap){
-                      client=Client(snap.data?.docs[0]["id"], "", snap.data?.docs[0]["birthdate"].toDate(),
+                      client=Client(snap.data?.docs[0]["id"], snap.data?.docs[0]["email"], snap.data?.docs[0]["birthdate"].toDate(),
                         "", snap.data?.docs[0]["city"], snap.data?.docs[0]["address"],
                         snap.data?.docs[0]["firstname"], snap.data?.docs[0]["lastname"],
                         snap.data?.docs[0]["phone"],
@@ -131,14 +176,44 @@ class _Welcome_Coach extends State<Welcome_Coach> {
                           snapshot.data?.docs[index]["isConfirmed"] == false ?
                           Wrap( children:
                           [
-                            ElevatedButton(onPressed: ()
+                            ElevatedButton(onPressed: () async
                             {
+                              final message = Message()
+                                ..from = Address(username, 'Coachinow')
+                                ..recipients.add(client.email)
+                                ..subject =  "Votre demande de rendez-vous a été validée !"
+                                ..text = "Votre demande de rendez-vous le ${reservation.dateDebut} a été validée par ${widget.coach.firstname} ${widget.coach.lastname} ";
+                              try {
+                                final sendReport = await send(message, smtpServer);
+                                print('Message sent: ' + sendReport.toString());
+                              } on MailerException catch (e) {
+                                print('Message not sent.');
+                                for (var p in e.problems) {
+                                  print('Problem: ${p.code}: ${p.msg}');
+                                }
+                              }
+
                               ReservationService().confirm_reservation(reservation);
                             },
                                 child: Text("Valider")),
                             SizedBox(width: 5,),
                             ElevatedButton(onPressed: ()async
                             {
+                              final message = Message()
+                                ..from = Address(username, 'Coachinow')
+                                ..recipients.add(client.email)
+                                ..subject =  "Votre demande de rendez-vous a été refusée !"
+                                ..text = "Votre demande de rendez-vous le ${reservation.dateDebut} a été refusée par ${widget.coach.firstname} ${widget.coach.lastname} ";
+                              try {
+                                final sendReport = await send(message, smtpServer);
+                                print('Message sent: ' + sendReport.toString());
+                              } on MailerException catch (e) {
+                                print('Message not sent.');
+                                for (var p in e.problems) {
+                                  print('Problem: ${p.code}: ${p.msg}');
+                                }
+                              }
+
                               ReservationService().refus_reservation(reservation);
                             },
                               child: Text("Refuser")
@@ -148,20 +223,22 @@ class _Welcome_Coach extends State<Welcome_Coach> {
 
                             )
                           ],)  :
+                          snapshot.data?.docs[index]["isPaid"]?
                           Wrap(
                             children:[
                               ElevatedButton(
                                 onPressed: () async
                                 {
-                                  await launch("tel:"+snap.data?.docs[0]["phone"]) ;
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatScreenCoach(client: client, coach: widget.coach)));
                                 },
                                 child: Icon(Icons.phone, color: Colors.white,),
                                 style: ElevatedButton.styleFrom(primary: Colors.green),
                               ),
                               SizedBox(width: 5,),
                               ElevatedButton(
-                                onPressed: ()
+                                onPressed: () async
                                 {
+
                                   Navigator.push(context, MaterialPageRoute(builder: (context){
                                     return CoachExercices(reservation: Reservation(id:snapshot.data?.docs[index]["id"],
                                         idcoach: snapshot.data?.docs[index]["idCoach"],idclient: snapshot.data?.docs[index]["idClient"],
@@ -182,7 +259,8 @@ class _Welcome_Coach extends State<Welcome_Coach> {
 
                             ],
 
-                          ),
+                          ):
+                          Text("En Attente de paiement"),
 
 
                         ]);

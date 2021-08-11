@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server/gmail.dart';
+import 'package:prof_sport/ChatScreenClient.dart';
 import 'package:prof_sport/CustomAppBar.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:prof_sport/models/Client.dart';
@@ -25,11 +28,14 @@ class ListeDemande extends StatefulWidget {
 class _ListeDemande extends State<ListeDemande> {
   late Coach coach;
   String url="";
-Future<Null> get_url(String path) async{
+  String username = 'coachinowtest@gmail.com';
+  String password = '1234@Abcd';
+  late var smtpServer;
+
+  Future<Null> get_url(String path) async{
   url=await Auth().downloadURL(path);
 
 }
-
   @override
   Widget build(BuildContext context) {
     ReservationService().get_client_reservations(widget.client.uid);
@@ -58,7 +64,7 @@ Future<Null> get_url(String path) async{
                                   stream: FirebaseFirestore.instance.collection("coaches").
                                   where("id",isEqualTo: snapshot.data?.docs[index]["idCoach"]).snapshots(),
                                   builder: (context,snap){
-                                    coach=Coach(snap.data?.docs[0]["id"], "", snap.data?.docs[0]["birthdate"].toDate(),
+                                    coach=Coach(snap.data?.docs[0]["id"], snap.data?.docs[0]["email"], snap.data?.docs[0]["birthdate"].toDate(),
                                         "", snap.data?.docs[0]["city"], snap.data?.docs[0]["address"],
                                         snap.data?.docs[0]["firstname"], snap.data?.docs[0]["lastname"],
                                         snap.data?.docs[0]["phone"],
@@ -95,7 +101,23 @@ Future<Null> get_url(String path) async{
                                             ),
                                             onPressed: ()async
                                             {
-                                            ReservationService().refus_reservation(reservation);
+                                              smtpServer = gmail(username, password);
+                                              final message = Message()
+                                                ..from = Address(username, 'Coachinow')
+                                                ..recipients.add(coach.email)
+                                                ..subject =  " La demande de rendez-vous a été annulée !"
+                                                  ..text = "La demande de rendez-vous le ${reservation.dateDebut} a été annulée par ${widget.client.firstname} ${widget.client.lastname} ";
+                                              try {
+                                                final sendReport = await send(message, smtpServer);
+                                                print('Message sent: ' + sendReport.toString());
+                                              } on MailerException catch (e) {
+                                                print('Message not sent.');
+                                                for (var p in e.problems) {
+                                                  print('Problem: ${p.code}: ${p.msg}');
+                                                }
+                                              }
+
+                                              ReservationService().refus_reservation(reservation);
                                             },
                                             ),
 
@@ -115,15 +137,19 @@ Future<Null> get_url(String path) async{
                                             ):ElevatedButton(
                                               onPressed: ()
                                               {
-                                                launch("tel:"+snap.data?.docs[0]["phone"]);
+                                                Navigator.push(context, MaterialPageRoute(
+                                                  builder: (context){
+                                                    return ChatScreenClient(client:widget.client,coach:coach);
+                                                  }
+                                                ));
 
                                               },
-                                              child: Text("Tel")
+                                              child: Text("Chat")
                                     ),
 
                                             SizedBox(width: 5,),
 
-                                            !(snapshot.data?.docs[index]["isOver"])?ElevatedButton(
+                                            (snapshot.data?.docs[index]["isPaid"])?ElevatedButton(
                                               onPressed: () async
                                               {
                                                 Navigator.push(context, MaterialPageRoute(builder: (context){

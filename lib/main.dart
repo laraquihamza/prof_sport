@@ -24,23 +24,6 @@ late AndroidNotificationChannel channel;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  flutterLocalNotificationsPlugin=FlutterLocalNotificationsPlugin();
-  channel=AndroidNotificationChannel("id","main channel","description");
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-      AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
-
-  /// Update the iOS foreground notification presentation options to allow
-  /// heads up notifications.
-  await FirebaseMessaging.instance
-      .setForegroundNotificationPresentationOptions(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
 
   runApp(MyApp( await Auth().user_type()));
 }
@@ -118,44 +101,6 @@ class _MyHomePageState extends State<MyHomePage> {
   String email = "";
   String password = "";
 
-  void initState() {
-    super.initState();
-    FirebaseMessaging.instance
-        .getInitialMessage()
-        .then((RemoteMessage? message) {
-      if (message != null) {
-        Navigator.pushNamed(context, '/message',
-            arguments: MessageArguments(message, true));
-      }
-    });
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification notification = message.notification!;
-      AndroidNotification android = message.notification!.android!;
-      if (notification != null && android != null ) {
-        flutterLocalNotificationsPlugin.show(
-            notification.hashCode,
-            notification.title,
-            notification.body,
-            NotificationDetails(
-              android: AndroidNotificationDetails(
-                channel.id,
-                channel.name,
-                channel.description,
-                // TODO add a proper drawable resource to android, for now using
-                //      one that already exists in example app.
-                icon: 'launch_background',
-              ),
-            ));
-      }
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('A new onMessageOpenedApp event was published!');
-      Navigator.pushNamed(context, '/message',
-          arguments: MessageArguments(message, true));
-    });
-  }
 
 
   @override
@@ -255,8 +200,10 @@ class _MyHomePageState extends State<MyHomePage> {
             late Coach coach;
             try {
     String uid = await auth.SignIn(email, password);
-    NotificationService().saveDeviceToken(Auth().getCurrentUserUid());
-    if(await auth.user_type()=="client"){
+    if(uid=="mailnotverified"){
+      Toast.show("Votre adresse mail n'est pas vérifiée", context);
+    }
+    else if(await auth.user_type()=="client"){
     client = await auth.getCurrentClient();
     Toast.show("Connexion réussie ", context,
     duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -380,12 +381,32 @@ class _Welcome_Client extends State<Welcome_Client> {
       );
     }
   late List <Widget> pages;
+  late Timer timer;
+  late bool isVerified;
+  @override
+  void initState(){
+    super.initState();
+    getIsVerified();
+    timer= Timer.periodic(Duration(milliseconds: 500),(timer)async{
+      Auth().reload();
+      setState(() {
+        getIsVerified();
+        if(isVerified){
+          timer.cancel();
+        }
+      });
+
+    });
+  }
+  getIsVerified()async{
+    isVerified= await Auth().isVerified();
+  }
   @override
   Widget build(BuildContext context) {
     pages=[home_page(),infos_page()];
     return WillPopScope(
       onWillPop: ()async=>false,
-      child: Scaffold(
+      child: isVerified?Scaffold(
         resizeToAvoidBottomInset: false,
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: tabindex,
@@ -403,8 +424,17 @@ class _Welcome_Client extends State<Welcome_Client> {
         appBar: custom_appbar(widget.title, context,true,true),
         body: pages[tabindex]
 
-      ),
-    );
+      ):Scaffold(
+        appBar: custom_appbar("title", context, true, true),
+        body: Column(
+          children: [
+            Text("Mail pas vérifié"),
+            ElevatedButton(onPressed: (){
+              Auth().sendVerificationEmail();
+            }, child: Text("Renvoyer lien de vérification"))
+          ],
+        ),
+      ));
   }
 
   int getAge(DateTime birthdate){

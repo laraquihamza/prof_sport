@@ -68,14 +68,24 @@ class Auth implements AuthImplementation {
         email: email, password: password);
     return user.user!.uid;
   }
-
+  Future<bool> isVerified()async{
+     return _firebaseAuth.currentUser!.emailVerified;
+  }
 // Methode pour le Signup //
   Future<String> SignUp(String email, String password) async {
     UserCredential user = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email, password: password);
     return user.user!.uid;
   }
-
+  sendVerificationEmail() async{
+     await _firebaseAuth.currentUser!.sendEmailVerification();
+  }
+  resetPassword(String email){
+     _firebaseAuth.sendPasswordResetEmail(email: email);
+  }
+  reload(){
+     _firebaseAuth.currentUser!..reload();
+  }
   Future<String> SignUpBig(
       String email,
       String password,
@@ -93,6 +103,7 @@ class Auth implements AuthImplementation {
       DateTime birthdate) async {
     UserCredential user = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email, password: password);
+    user.user!.sendEmailVerification();
     FirebaseFirestore.instance.collection("users").doc(user.user!.uid).set({
       'id': user.user!.uid,
       'firstname': firstname, // John Doe
@@ -106,7 +117,8 @@ class Auth implements AuthImplementation {
       'img':img,
       'height':height,
       'weight':weight,
-      'gender':gender
+      'gender':gender,
+      "email":email
     });
 
     return user.user!.uid;
@@ -170,7 +182,7 @@ class Auth implements AuthImplementation {
           user.email!,
           DateTime.fromMillisecondsSinceEpoch(
               (c.data()!["birthdate"] as Timestamp).millisecondsSinceEpoch),
-          "",
+          c.data()!["email"],
           c.data()!["city"],
           c.data()!["address"],
           c.data()!["firstname"],
@@ -197,7 +209,7 @@ class Auth implements AuthImplementation {
         user.email!,
         DateTime.fromMillisecondsSinceEpoch(
             (c.data()!["birthdate"] as Timestamp).millisecondsSinceEpoch),
-        "",
+        c.data()!["email"],
         c.data()!["city"],
         c.data()!["address"],
         c.data()!["firstname"],
@@ -266,6 +278,7 @@ class Auth implements AuthImplementation {
       DateTime birthdate) async {
     UserCredential user = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email, password: password);
+    user.user!.sendEmailVerification();
     FirebaseFirestore.instance.collection("coaches").doc(user.user!.uid).set({
       'id': user.user!.uid,
       'firstname': firstname, // John Doe
@@ -280,6 +293,7 @@ class Auth implements AuthImplementation {
       'diplome':diplome,
       'price':price,
       'sport':sport,
+      "email":email
 
     });
 

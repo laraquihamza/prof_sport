@@ -14,7 +14,7 @@
         <!-- If your app emails -->
         <intent>
             <action android:name="android.intent.action.SEND" />
-            <data android:mimeType="*/*" />
+            <data android:scheme="mailto"/>
         </intent>
     </queries>
    <application
