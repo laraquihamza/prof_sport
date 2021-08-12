@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:prof_sport/models/Client.dart';
+import 'package:prof_sport/validators.dart';
 import 'package:prof_sport/welcome_client.dart';
 import 'package:toast/toast.dart';
 import 'package:email_validator/email_validator.dart';
@@ -33,7 +34,6 @@ class _SignupClient extends State<SignupClient> {
   Wrapper lastname = Wrapper("");
   Wrapper email = Wrapper("");
   Wrapper password = Wrapper("");
-  Wrapper confirmpassword = Wrapper("");
   Wrapper address = Wrapper("");
   Wrapper city = Wrapper("Agadir");
   DateTime? birthdate=DateTime(1970,10,10);
@@ -96,28 +96,66 @@ class _SignupClient extends State<SignupClient> {
               )
             ]),
               onTap: () async{
-                if(EmailValidator.validate(email.str)==true && password.str == confirmpassword.str && password.str.length>=8 && address.str.length>0 && phonenumber.str.length>0 && firstname.str.length>0 && lastname.str.length>0){
-                  await Auth().SignUpBig(email.str, password.str, firstname.str, lastname.str, city.str,
-                      address.str, phonenumber.str,imageUrl.str, imc,img,height,weight,gender.str, birthdate!);
-                  await Auth().UploadDocument(imageUrl.str);
-                  await Auth().SignIn(email.str, password.str);
-                  Toast.show("Inscription réussie ", context,
-                      duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
-                  Client client =await Auth().getCurrentClient();
-                  Navigator.push(context, MaterialPageRoute(
-                      builder: (context){
-                        return Welcome_Client(title: "Client", client:client );
-                      }
+                bool valid=true;
+                String errors="";
+                Validators validators=Validators();
+                if(!validators.isEmailValid(email.str)){
+                  valid=false;
+                  errors+="- L'adresse e-mail n'est pas valide \n";
+                }
+                if(!validators.validatePassword(password.str)){
+                  valid=false;
+                  errors+="- Le mot de passe doit contenir contenir au moins 8 caractères dont une majuscule, une minuscule et un caractère spécial\n";
+                }
+                if(!validators.isFirstLastNameValid(firstname.str)){
+                  valid=false;
+                  errors+="- Le prénom saisi n'est pas valide\n";
+                }
+                if(!validators.isFirstLastNameValid(lastname.str)){
+                  valid=false;
+                  errors+="- Le nom saisi n'est pas valide\n";
+                }
+                if(!validators.isAdressValid(address.str)){
+                  valid=false;
+                  errors+="- Veuillez renseigner l'adresse\n";
+                }
+                if(!validators.isDocumentValid(imageUrl.str)){
+                  valid=false;
+                  errors+="- Veuillez selectionner une photo de profil\n";
+                }
+                if(!validators.isPhoneNumberValid(phonenumber.str)){
+                  valid=false;
+                  errors+="- Veuillez selectionner un numéro de téléphone valide\n";
+                }
 
-                  ));
+                if(valid){
+                  try{
+                    await Auth().SignUpBig(email.str, password.str, firstname.str, lastname.str, city.str,
+                        address.str, phonenumber.str,imageUrl.str, imc,img,height,weight,gender.str, birthdate!);
+                    await Auth().UploadDocument(imageUrl.str);
+                    await Auth().SignIn(email.str, password.str);
+                    Toast.show("Inscription réussie ", context,
+                        duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+                    Client client =await Auth().getCurrentClient();
+                    Navigator.push(context, MaterialPageRoute(
+                        builder: (context){
+                          return Welcome_Client(title: "Client", client:client);} ));
+
+                  }
+                  catch(e){
+                    if(validators.isEmailAlreadyUsed(e.toString())){
+                      valid=false;
+                      errors+="- L'adresse mail est déja utilisée \n";
+                      dialog_error(errors);
+                    }
+                  }
 
                 }
                 else{
-                  Toast.show("Veuillez remplir tous les champs correctement ", context,
-                      duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
-
+                  dialog_error(errors);
                 }
-              },
+                }
+              ,
             ),
           ],
         ),
@@ -162,7 +200,6 @@ class _SignupClient extends State<SignupClient> {
                 field("Prénom", firstname, false),
                 field("Adresse e-mail",email,false),
                 field("Mot de passe",password, true),
-                field("Confirmer le mot de passe", confirmpassword, true),
                 Align(
                   alignment: Alignment.topLeft,
                   child: Text("Date de naissance"),
@@ -347,7 +384,20 @@ class _SignupClient extends State<SignupClient> {
       ),
     );
   }
-
+  dialog_error(String errors){
+    AlertDialog alertDialog=AlertDialog(
+      title: Text("Saisie incorrecte"),
+      content: Text(errors),
+      actions: [
+        ElevatedButton(child:Text("OK"),onPressed: (){
+          Navigator.of(context).pop();   
+    },)
+      ],
+    );
+    showDialog(context: context, barrierDismissible: false, builder: (context){
+      return alertDialog;
+    });
+  }
   Future<Null> montrerAge() async {
     DateTime? res = await showDatePicker(
         context: context,

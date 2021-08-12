@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:prof_sport/models/Coach.dart';
+import 'package:prof_sport/validators.dart';
 import 'package:prof_sport/welcome_coach.dart';
 import 'package:toast/toast.dart';
 import 'package:email_validator/email_validator.dart';
@@ -131,42 +132,81 @@ Future<Null> uploadPicture() async{
 
               ]
               ),
-                onTap: () async{
+                onTap:  () async{
+                  bool valid=true;
+                  String errors="";
+                  Validators validators=Validators();
+                  if(!validators.isEmailValid(email.str)){
+                    valid=false;
+                    errors+="- L'adresse e-mail n'est pas valide \n";
+                  }
+                  if(!validators.validatePassword(password.str)){
+                    valid=false;
+                    errors+="- Le mot de passe doit contenir contenir au moins 8 caractères dont une majuscule, une minuscule et un caractère spécial\n";
+                  }
+                  if(!validators.isFirstLastNameValid(firstname.str)){
+                    valid=false;
+                    errors+="- Le prénom saisi n'est pas valide\n";
+                  }
+                  if(!validators.isFirstLastNameValid(lastname.str)){
+                    valid=false;
+                    errors+="- Le nom saisi n'est pas valide\n";
+                  }
+                  if(!validators.isAdressValid(address.str)){
+                    valid=false;
+                    errors+="- Veuillez renseigner l'adresse\n";
+                  }
+                  if(!validators.isDocumentValid(imageUrl.str)){
+                    valid=false;
+                    errors+="- Veuillez selectionner une photo de profil\n";
+                  }
+                  if(!validators.isDocumentValid(cin.str)){
+                    valid=false;
+                    errors+="- Veuillez selectionner une CIN\n";
+                  }
+                  if(!validators.isDocumentValid(dip.str)){
+                    valid=false;
+                    errors+="- Veuillez selectionner un diplôme\n";
+                  }
+                  if(!validators.isDocumentValid(cv.str)){
+                    valid=false;
+                    errors+="- Veuillez selectionner un CV\n";
+                  }
 
-                  if(EmailValidator.validate(email.str)==true && cv.str!="" && cin.str!="" && dip.str!='' && imageUrl!="" && validatePassword(password.str) && address.str.length>0 && phonenumber.str.length>0 && firstname.str.length>0 && lastname.str.length>0) {
-                    await Auth().SignUpBigCoach(
-                        email.str,
-                        password.str,
-                        firstname.str,
-                        lastname.str,
-                        city.str,
-                        address.str,
-                        phonenumber.str,
-                        sport.str,
-                        tarif.str,
-                        dip.str,
-                        cin.str,
-                        cv.str,
-                        imageUrl.str,
-                        birthdate!);
-                    Auth().UploadDocument(imageUrl.str);
-                    Auth().UploadDocument(cin.str);
-                    Auth().UploadDocument(cv.str);
-                    Auth().UploadDocument(dip.str);
-                    Toast.show("Inscription réussie ", context,
-                        duration: 3, gravity: Toast.BOTTOM);
-                    Coach coach =await Auth().getCurrentCoach();
-                    Navigator.push(context, MaterialPageRoute(
-                        builder: (context){
-                          return Welcome_Coach(title: "Coach", coach: coach, );
-                        }
+                  if(!validators.isPhoneNumberValid(phonenumber.str)){
+                    valid=false;
+                    errors+="- Veuillez selectionner un numéro de téléphone valide\n";
+                  }
 
-                    ));
+                  if(valid){
+                    try{
+                      await Auth().SignUpBigCoach(email.str, password.str, firstname.str, lastname.str, city.str,
+                          address.str, phonenumber.str, sport.str, tarif.str, dip.str,cin.str,cv.str, imageUrl.str, birthdate!);
+                      await Auth().UploadDocument(imageUrl.str);
+                      await Auth().SignIn(email.str, password.str);
+                      Toast.show("Inscription réussie ", context,
+                          duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+                      Coach coach =await Auth().getCurrentCoach();
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (context){
+                            return Welcome_Coach(title: "Client", coach:coach);} ));
+
+                    }
+                    catch(e){
+                      print("error:${e.toString()}");
+                      if(validators.isEmailAlreadyUsed(e.toString())){
+                        valid=false;
+                        errors+="- L'adresse mail est déja utilisée \n";
+                        dialog_error(errors);
+                      }
+                    }
+
                   }
                   else{
-                    Toast.show("Veuillez remplir les champs correctement", context, duration: 3);
+                    dialog_error(errors);
                   }
-                },
+                }
+
             ),
           ],
         ),
@@ -384,6 +424,20 @@ Future<Null> uploadPicture() async{
             )),
       ),
     );
+  }
+  dialog_error(String errors){
+    AlertDialog alertDialog=AlertDialog(
+      title: Text("Saisie incorrecte"),
+      content: Text(errors),
+      actions: [
+        ElevatedButton(child:Text("OK"),onPressed: (){
+          Navigator.of(context).pop();
+        },)
+      ],
+    );
+    showDialog(context: context, barrierDismissible: false, builder: (context){
+      return alertDialog;
+    });
   }
 
   Future<Null> montrerAge() async {

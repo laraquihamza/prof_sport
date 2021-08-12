@@ -177,6 +177,7 @@ class _Welcome_Client extends State<Welcome_Client> {
     imageUrl.str=await Auth().downloadURL(widget.client.picture);
   }
   Widget conversations_page() {
+    DateTime date= DateTime.now();
     return
       StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance.collection("conversations").where(
@@ -193,48 +194,62 @@ class _Welcome_Client extends State<Welcome_Client> {
                   itemCount: snapshot.data!.size,
                   itemBuilder: (context, index) {
                     var doc = snapshot.data!.docs[index];
+                    int length=0;
                     return StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance.collection("coaches")
                           .where("id", isEqualTo: doc["idCoach"])
                           .snapshots(),
                       builder: (context, snap) {
-                        return snap.hasData ? Wrap(children: [
+                        return snap.hasData ? Row(children: [
                           StreamBuilder(
                             stream: Auth().downloadURL(snap.data!.docs[0]["picture"]).asStream(),
                             builder: (context,snappicture){
-                              return Container(
-                                width: 40,
-                                  height: 40,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: NetworkImage(snappicture.data as String)
-                                  )
-                                ),
+                              return                   CircleAvatar(
+                                backgroundImage: NetworkImage(snappicture.data as String),
+                                maxRadius: 30,
                               );
+
                             },
                           ),
-                          Text(snap.data!.docs[0]["firstname"]),
-                          Text(snap.data!.docs[0]["lastname"]),
-                          StreamBuilder<QuerySnapshot>(
-                            stream: FirebaseFirestore.instance.collection("messages").where("idConversation",isEqualTo: doc["id"]).orderBy("date").snapshots(),
-                            builder: (context,snap2){
-                              int length=0;
-                              var doc;
-                              if(snap2.hasData){
-                                length=snap2.data!.docs.length-1;
-                                if(length!=-1){
-                                  doc=snap2.data!.docs[length];
-                                }
-                              }
-                              return snap2.hasData?Wrap(
-                                children: [
-                                  length!=-1?Text(get_substring(doc["message"])):Text(""),
-                                  length!=-1?Text("${doc["date"].toDate()}"):Text("")
+                          SizedBox(width: 16,),
+                          Expanded(
+                            child: Container(
+                              color: Colors.transparent,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text("${snap.data!.docs[index]['firstname']} ${snap.data!.docs[index]['lastname']} ", style: TextStyle(fontSize: 16),),
+                                  SizedBox(height: 6,),
+                                  StreamBuilder<QuerySnapshot>(
+                                    stream: FirebaseFirestore.instance.collection("messages").where("idConversation",isEqualTo: doc["id"]).orderBy("date").snapshots(),
+                                    builder: (context,snap2){
+                                      var doc;
+                                      if(snap2.hasData){
+                                        length=snap2.data!.docs.length-1;
+                                        if(length!=-1){
+                                          doc=snap2.data!.docs[length];
+                                        }
+                                      }
+                                        date=doc["date"].toDate();
+                                      return
+                                        snap2.hasData?Row(
+                                        children: [
+                                          Text(length!=-1?get_substring(doc["message"]):"",style: TextStyle(fontSize: 13,color: Colors.grey.shade600, fontWeight: FontWeight.normal),),
+                                          Spacer(),
+                                          length!=-1?Text("${get_date_string(date)}"):Text(""),
+                                          SizedBox(width: 5.0,)
+
+
+                                        ],
+                                      ):Text("");
+                                    },
+                                  )
 
                                 ],
-                              ):Text("");
-                            },
-                          )
+                              ),
+                            ),
+                          ),
+
                         ]
                         )
                             : Text("");
@@ -252,7 +267,18 @@ class _Welcome_Client extends State<Welcome_Client> {
     }
     return s;
   }
-
+  String get_date_string(DateTime date){
+    DateTime now=DateTime.now();
+    if(date.year== now.year && date.month==now.month && date.day==now.day){
+      return "${date.hour}h${date.minute}";
+    }
+    else if(date.year== now.year && date.month==now.month && date.day==now.day-1){
+      return "Hier";
+    }
+    else {
+      return "${date.day}/${date.month}/${date.year}";
+    }
+  }
   Widget infos_page() {
       return Container(
         child: Column(

@@ -1,6 +1,4 @@
-import 'dart:html';
 import 'package:email_validator/email_validator.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:toast/toast.dart';
 
@@ -36,7 +34,11 @@ class Validators {
   // Valid firstname or lastname //
 
   bool isFirstLastNameValid(String name) {
-    if (name.length <= 3 && name is String) {
+    String pattern = "^[a-zA-Z0-9_]*\$";
+    RegExp regex = new RegExp(pattern);
+
+    if (name.length!=0 && !regex.hasMatch(name))
+    {
       return false;
     } else {
       return true;
@@ -46,7 +48,7 @@ class Validators {
   // Confirm Adress //
 
   bool isAdressValid(String adress) {
-    if (adress.length <= 14 && adress is String) {
+    if (adress.length == 0) {
       return false;
     } else {
       return true;
@@ -56,12 +58,12 @@ class Validators {
   // Numero Telephone Valid //
 
   bool isPhoneNumberValid(String value) {
-    String pattern = r'/^(?:[+0]9)?[0-9]{10})$/';
+    String pattern = r'(^(?:[+0]9)?[0-9]{10,12}$)';
     RegExp regex = new RegExp(pattern);
     if (!regex.hasMatch(value))
-      return false;
+     { return false; }
     else
-      return true;
+     { return true; }
   }
 
   //
@@ -71,34 +73,30 @@ class Validators {
   bool isDocumentValid(String document) {
     if (document != "") {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   // Login Validation //
   bool isEmailAlreadyUsed(String error) {
-    if (error.contains("email already used")) {
+    if (error.contains("The email address is already in use by another account.")) {
       return true;
-    } else {
-      return false;
     }
+      return false;
   }
 
   bool isEmailNotExist(String error) {
     if (error.contains("email not exist")) {
       return true;
-    } else {
-      return false;
     }
+      return false;
   }
 
   bool isPasswordWrong(String error) {
     if (error.contains("password wrong")) {
       return true;
-    } else {
-      return false;
     }
+      return false;
   }
 
   // Messages Return For Toasts for each Exception //

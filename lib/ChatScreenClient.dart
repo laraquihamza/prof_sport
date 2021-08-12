@@ -27,7 +27,7 @@ class _ChatScreenState extends State<ChatScreenClient> {
   @override
   Widget build(BuildContext context) {
     return    Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       appBar: custom_appbar("Exercices Coach", context, true,false),
       body: SingleChildScrollView(
         child: Column(
