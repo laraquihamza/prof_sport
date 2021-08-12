@@ -47,9 +47,9 @@ AppBar custom_appbar(String title, BuildContext context, bool logout, bool isFir
             ),
             onTap: (){
               Auth().signOut();
-              Navigator.push(context, MaterialPageRoute(builder: (context){
+              Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context){
                 return MyApp("error");
-              }));
+              }),(Route<dynamic> route)=>false);
             },
 
           ),

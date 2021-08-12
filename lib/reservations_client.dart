@@ -13,6 +13,8 @@ import 'package:prof_sport/paymentScreen.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:prof_sport/client_exercices.dart';
+import 'models/Conversation.dart';
+import 'models/ConversationService.dart';
 import 'models/Reservation.dart';
 class ListeDemande extends StatefulWidget {
   final String title;
@@ -135,11 +137,17 @@ class _ListeDemande extends State<ListeDemande> {
                                               style: ElevatedButton.styleFrom(primary: Colors.green),
 
                                             ):ElevatedButton(
-                                              onPressed: ()
+                                              onPressed: ()async
                                               {
+                                                if(!await ConversationService().conversation_exists(coach, widget.client)){
+                                                  ConversationService().create_conversation(coach, widget.client);
+                                                }
+                                                Conversation conversation=await ConversationService().get_conversation(widget.client, coach);
+
                                                 Navigator.push(context, MaterialPageRoute(
                                                   builder: (context){
-                                                    return ChatScreenClient(client:widget.client,coach:coach);
+
+                                                    return ChatScreenClient(conversation: conversation);
                                                   }
                                                 ));
 

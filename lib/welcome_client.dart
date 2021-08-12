@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:prof_sport/ChatScreenClient.dart';
 import 'package:prof_sport/CustomAppBar.dart';
 import 'package:prof_sport/models/AuthImplementation.dart';
 import 'package:prof_sport/reservations_client.dart';
@@ -17,6 +18,9 @@ import 'Signup_Coach.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+
+import 'main.dart';
+import 'models/Conversation.dart';
 class Wrapper{
   late String str;
   Wrapper(String str){
@@ -172,6 +176,83 @@ class _Welcome_Client extends State<Welcome_Client> {
   Future<Null> getDownloadUrl() async{
     imageUrl.str=await Auth().downloadURL(widget.client.picture);
   }
+  Widget conversations_page() {
+    return
+      StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection("conversations").where(
+              "idClient", isEqualTo: widget.client.uid).snapshots(),
+          builder: (context, snapshot) {
+            return snapshot.hasData ? InkWell(
+              onTap: ()async{
+                Navigator.push(context, MaterialPageRoute(builder: (context){
+                  return ChatScreenClient(conversation: Conversation(id:snapshot.data!.docs[index]["id"],
+                      idCoach:snapshot.data!.docs[index]["idCoach"],idClient: snapshot.data!.docs[index]["idClient"]));
+                }));
+              },
+              child: ListView.builder(shrinkWrap: true,
+                  itemCount: snapshot.data!.size,
+                  itemBuilder: (context, index) {
+                    var doc = snapshot.data!.docs[index];
+                    return StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance.collection("coaches")
+                          .where("id", isEqualTo: doc["idCoach"])
+                          .snapshots(),
+                      builder: (context, snap) {
+                        return snap.hasData ? Wrap(children: [
+                          StreamBuilder(
+                            stream: Auth().downloadURL(snap.data!.docs[0]["picture"]).asStream(),
+                            builder: (context,snappicture){
+                              return Container(
+                                width: 40,
+                                  height: 40,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: NetworkImage(snappicture.data as String)
+                                  )
+                                ),
+                              );
+                            },
+                          ),
+                          Text(snap.data!.docs[0]["firstname"]),
+                          Text(snap.data!.docs[0]["lastname"]),
+                          StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance.collection("messages").where("idConversation",isEqualTo: doc["id"]).orderBy("date").snapshots(),
+                            builder: (context,snap2){
+                              int length=0;
+                              var doc;
+                              if(snap2.hasData){
+                                length=snap2.data!.docs.length-1;
+                                if(length!=-1){
+                                  doc=snap2.data!.docs[length];
+                                }
+                              }
+                              return snap2.hasData?Wrap(
+                                children: [
+                                  length!=-1?Text(get_substring(doc["message"])):Text(""),
+                                  length!=-1?Text("${doc["date"].toDate()}"):Text("")
+
+                                ],
+                              ):Text("");
+                            },
+                          )
+                        ]
+                        )
+                            : Text("");
+                      },
+                    );
+                  }
+              ),
+            ) : Text("");
+          }
+      );
+  }
+  String get_substring(String s){
+    if(s.length>10){
+      return s.substring(0,10);
+    }
+    return s;
+  }
+
   Widget infos_page() {
       return Container(
         child: Column(
@@ -373,7 +454,15 @@ class _Welcome_Client extends State<Welcome_Client> {
                 Toast.show("Veuillez remplir tout les champs", context,duration: Toast.LENGTH_LONG);
               }
 
-            }, child: Text("Enregistrer"))
+            }, child: Text("Enregistrer")),
+            ElevatedButton(child:Text("Supprimer le compte"),
+            onPressed: ()async{
+              Auth().deleteClient(widget.client);
+              Navigator.push(context,MaterialPageRoute(builder: (context){
+                return MyHomePage(title: 'Home',);
+              }));
+            },
+            )
 
 
           ],
@@ -403,7 +492,7 @@ class _Welcome_Client extends State<Welcome_Client> {
   }
   @override
   Widget build(BuildContext context) {
-    pages=[home_page(),infos_page()];
+    pages=[home_page(),infos_page(),conversations_page()];
     return WillPopScope(
       onWillPop: ()async=>false,
       child: isVerified?Scaffold(
@@ -419,6 +508,8 @@ class _Welcome_Client extends State<Welcome_Client> {
           items: [
             BottomNavigationBarItem(icon: Icon(Icons.height),label: "Réserver",),
             BottomNavigationBarItem(icon: Icon(Icons.clear), label: "Modifier Infos",),
+            BottomNavigationBarItem(icon: Icon(Icons.message), label: "Conversations",),
+
           ],
         ),
         appBar: custom_appbar(widget.title, context,true,true),

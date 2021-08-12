@@ -197,6 +197,62 @@ class Auth implements AuthImplementation {
       );
       return client;
  }
+  Future<Client> getClientById(String id) async {
+    var c = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .snapshots()
+        .first;
+    Client client = Client(
+        id,
+        c.data()!["email"],
+        DateTime.fromMillisecondsSinceEpoch(
+            (c.data()!["birthdate"] as Timestamp).millisecondsSinceEpoch),
+        c.data()!["email"],
+        c.data()!["city"],
+        c.data()!["address"],
+        c.data()!["firstname"],
+        c.data()!["lastname"],
+        c.data()!["phone"],
+        c.data()!["picture"],
+        c.data()!["imc"],
+        c.data()!["img"],
+        c.data()!["height"],
+        c.data()!["weight"],
+        c.data()!["gender"]
+    );
+    return client;
+  }
+  Future<Coach> getCoachById(String id) async {
+    var c = await FirebaseFirestore.instance
+        .collection("coaches")
+        .doc(id)
+        .snapshots()
+        .first;
+    Coach coach = Coach(
+        id ,
+        c.data()!["email"],
+        DateTime.fromMillisecondsSinceEpoch(
+            (c.data()!["birthdate"] as Timestamp).millisecondsSinceEpoch),
+        c.data()!["email"],
+        c.data()!["city"],
+        c.data()!["address"],
+        c.data()!["firstname"],
+        c.data()!["lastname"],
+        c.data()!["phone"],
+        c.data()!["picture"],
+        c.data()!["price"],
+        c.data()!["sport"],
+        c.data()!["cin"],
+        c.data()!["cv"],
+        c.data()!["diplome"]
+    );
+    return coach;
+  }
+
+
+
+
   Future<Coach> getCurrentCoach() async {
     User user = await _firebaseAuth.currentUser!;
     var c = await FirebaseFirestore.instance
@@ -322,6 +378,8 @@ class Auth implements AuthImplementation {
     );
 
   }
+
+
   Future<Null> updateClient(Client client) async{
     await FirebaseFirestore.instance.collection("users").doc(client.uid).set(
         {       'id': client.uid,
@@ -336,7 +394,8 @@ class Auth implements AuthImplementation {
           'img':client.img,
           'height':client.height,
           'weight':client.weight,
-          'gender':client.gender
+          'gender':client.gender,
+          "email": client.email
 
         }
     );
@@ -357,10 +416,32 @@ class Auth implements AuthImplementation {
           'diplome':coach.diplome,
           'price':coach.price,
           'sport':coach.sport,
+          "email":coach.email
 
         }
     );
 
+  }
+  deleteClient(Client client)async{
+     FirebaseFirestore.instance.collection("users").doc(client.uid).delete();
+     var docs=(await FirebaseFirestore.instance.collection("reservations").where("idClient",isEqualTo: client.uid).snapshots().first).docs;
+     var c;
+     for(c in docs){
+       FirebaseFirestore.instance.collection("reservations").doc(c["id"]).delete();
+     }
+     docs=(await FirebaseFirestore.instance.collection("conversations").where("idClient",isEqualTo: client.uid).snapshots().first).docs;
+     for(c in docs){
+       FirebaseFirestore.instance.collection("conversations").doc(c["id"]).delete();
+     }
+     docs=(await FirebaseFirestore.instance.collection("messages").where("idSender",isEqualTo: client.uid).snapshots().first).docs;
+     for(c in docs){
+       FirebaseFirestore.instance.collection("messages").doc(c["id"]).delete();
+     }
+     docs=(await FirebaseFirestore.instance.collection("messages").where("idReceiver",isEqualTo: client.uid).snapshots().first).docs;
+     for(c in docs){
+       FirebaseFirestore.instance.collection("messages").doc(c["id"]).delete();
+     }
+     _firebaseAuth.currentUser!.delete();
   }
 
 

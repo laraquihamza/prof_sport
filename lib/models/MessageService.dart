@@ -4,7 +4,7 @@ import 'Message.dart';
 
 class MessageService
 {
-   sendMessage(String idSender,String idReceiver,String message){
+   sendMessage(String idSender,String idReceiver, String idConversation, String message){
      var doc=FirebaseFirestore.instance.collection("messages").doc();
 
      doc.set({
@@ -12,6 +12,7 @@ class MessageService
        'idSender':idSender,
        'idReceiver':idReceiver,
        'message':message,
+       'idConversation':idConversation,
        'date':DateTime.now(),
      });
 

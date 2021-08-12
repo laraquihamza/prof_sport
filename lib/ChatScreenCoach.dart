@@ -7,10 +7,11 @@ import 'package:bubble/bubble.dart';
 import 'package:prof_sport/models/Message.dart';
 import 'package:prof_sport/models/MessageService.dart';
 
+import 'models/Conversation.dart';
+
 class ChatScreenCoach extends StatefulWidget {
-  Client client;
-  Coach coach;
-  ChatScreenCoach({required this.client,required this.coach});
+  Conversation conversation;
+  ChatScreenCoach({required this.conversation});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -30,27 +31,27 @@ class _ChatScreenState extends State<ChatScreenCoach> {
           children: [
             Container(
               height: MediaQuery.of(context).size.height*0.7,
-              child:                            StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance.collection("messages").orderBy("date").snapshots(),
+              child:   StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance.collection("messages").where("idConversation",isEqualTo: widget.conversation.id).orderBy("date").snapshots(),
                   builder: (context,snapshot){
-                    return ListView.builder(
+                    return                     snapshot.hasData?
+                    ListView.builder(
                         shrinkWrap: true,
                         itemCount: snapshot.data!.size,
                         itemBuilder: (context,index){
                           Message message=Message(id: snapshot.data!.docs[index]["id"],idReceiver:snapshot.data!.docs[index]["idReceiver"],
                               idSender: snapshot.data!.docs[index]["idSender"],text: snapshot.data!.docs[index]["message"],
-                              date: snapshot.data!.docs[index]["date"].toDate()
+                              date: snapshot.data!.docs[index]["date"].toDate(),
+                            idConversation: snapshot.data!.docs[index]["idConversation"]
                           );
-                          if([widget.coach.uid,widget.client.uid].contains(message.idSender) && [widget.coach.uid,widget.client.uid].contains(message.idReceiver) ){
                             return Bubble(
-                              alignment: message.idSender==widget.coach.uid?Alignment.topRight:Alignment.topLeft,
-                              nip: message.idSender==widget.coach.uid?BubbleNip.rightTop:BubbleNip.leftTop,
+                              alignment: message.idSender==widget.conversation.idCoach?Alignment.topRight:Alignment.topLeft,
+                              nip: message.idSender==widget.conversation.idCoach?BubbleNip.rightTop:BubbleNip.leftTop,
                               child: Text(message.text),
                             );
 
                           }
-                          return Text("");
-                        });
+                          ):Text("Pas de message");
                   }),
             ),
             Container(
@@ -70,7 +71,7 @@ class _ChatScreenState extends State<ChatScreenCoach> {
                   )
                   ,ElevatedButton(onPressed: (){
                     if(text!=""){
-                      MessageService().sendMessage(widget.coach.uid, widget.client.uid, text);
+                      MessageService().sendMessage(widget.conversation.idCoach, widget.conversation.idClient,widget.conversation.id, text);
                       controller.text="";
                       text="";
                     }

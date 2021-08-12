@@ -19,6 +19,8 @@ import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'CustomAppBar.dart';
+import 'models/Conversation.dart';
+import 'models/ConversationService.dart';
 import 'models/Reservation.dart';
 class Welcome_Coach extends StatefulWidget {
   final String title;
@@ -39,8 +41,10 @@ class _Welcome_Coach extends State<Welcome_Coach> {
   String password = '1234@Abcd';
   late Timer timer;
   late bool isVerified;
+  int index=0;
   getIsVerified()async{
       isVerified= await Auth().isVerified();
+
   }
    @override
    void initState(){
@@ -66,6 +70,83 @@ class _Welcome_Coach extends State<Welcome_Coach> {
     reservations=await widget.reservationService.get_coach_reservations(widget.coach.uid);
   }
 
+  Widget conversations_page() {
+    return
+      StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection("conversations").where(
+              "idCoach", isEqualTo: widget.coach.uid).snapshots(),
+          builder: (context, snapshot) {
+            return snapshot.hasData ? InkWell(
+              onTap: ()async{
+                Navigator.push(context, MaterialPageRoute(builder: (context){
+                  return ChatScreenCoach(conversation: Conversation(id:snapshot.data!.docs[index]["id"],
+                      idCoach:snapshot.data!.docs[index]["idCoach"],idClient: snapshot.data!.docs[index]["idClient"]));
+                }));
+              },
+              child: ListView.builder(shrinkWrap: true,
+                  itemCount: snapshot.data!.size,
+                  itemBuilder: (context, index) {
+                    var doc = snapshot.data!.docs[index];
+                    return StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance.collection("coaches")
+                          .where("id", isEqualTo: doc["idCoach"])
+                          .snapshots(),
+                      builder: (context, snap) {
+                        return snap.hasData ? Wrap(children: [
+                          StreamBuilder(
+                            stream: Auth().downloadURL(snap.data!.docs[0]["picture"]).asStream(),
+                            builder: (context,snappicture){
+                              return Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                        image: NetworkImage(snappicture.data as String)
+                                    )
+                                ),
+                              );
+                            },
+                          ),
+                          Text(snap.data!.docs[0]["firstname"]),
+                          Text(snap.data!.docs[0]["lastname"]),
+                          StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance.collection("messages").where("idConversation",isEqualTo: doc["id"]).orderBy("date").snapshots(),
+                            builder: (context,snap2){
+                              int length=0;
+                              var doc;
+                              if(snap2.hasData){
+                                length=snap2.data!.docs.length-1;
+                                if(length!=-1){
+                                  doc=snap2.data!.docs[length];
+                                }
+                              }
+                              return snap2.hasData?Wrap(
+                                children: [
+                                  length!=-1?Text(get_substring(doc["message"])):Text(""),
+                                  length!=-1?Text("${doc["date"].toDate()}"):Text("")
+
+                                ],
+                              ):Text("");
+                            },
+                          )
+                        ]
+                        )
+                            : Text("");
+                      },
+                    );
+                  }
+              ),
+            ) : Text("");
+          }
+      );
+  }
+  String get_substring(String s){
+    if(s.length>10){
+      return s.substring(0,10);
+    }
+    return s;
+  }
+
   Future<Null> getClient(String id) async
   {
     var docs=(await FirebaseFirestore.instance.collection("users").
@@ -80,7 +161,7 @@ class _Welcome_Coach extends State<Welcome_Coach> {
   @override
   Widget build(BuildContext context) {
     getIsVerified();
-    tabs=[reservations_coach(context),infos_page()];
+    tabs=[reservations_coach(context),infos_page(),conversations_page()];
             return WillPopScope(
               onWillPop: ()async=>false,
               child: isVerified?Scaffold(
@@ -97,6 +178,8 @@ class _Welcome_Coach extends State<Welcome_Coach> {
                     items: [
                       BottomNavigationBarItem(icon: Icon(Icons.height),label: "Réserver",),
                       BottomNavigationBarItem(icon: Icon(Icons.clear), label: "Modifier Infos",),
+                      BottomNavigationBarItem(icon: Icon(Icons.message), label: "Conversations",),
+
                     ],
                   ),
 
@@ -229,7 +312,11 @@ class _Welcome_Coach extends State<Welcome_Coach> {
                               ElevatedButton(
                                 onPressed: () async
                                 {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatScreenCoach(client: client, coach: widget.coach)));
+                                  if(!await ConversationService().conversation_exists(widget.coach, client)){
+                                    await ConversationService().create_conversation(widget.coach, client);
+                                  }
+                                  Conversation conversation=await ConversationService().get_conversation(client, widget.coach);
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatScreenCoach(conversation:conversation )));
                                 },
                                 child: Icon(Icons.phone, color: Colors.white,),
                                 style: ElevatedButton.styleFrom(primary: Colors.green),
