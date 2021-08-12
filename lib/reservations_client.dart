@@ -139,10 +139,28 @@ class _ListeDemande extends State<ListeDemande> {
                                             ):ElevatedButton(
                                               onPressed: ()async
                                               {
-                                                if(!await ConversationService().conversation_exists(coach, widget.client)){
-                                                  ConversationService().create_conversation(coach, widget.client);
+                                                if(!await ConversationService().conversation_exists(Coach(snap.data?.docs[0]["id"], snap.data?.docs[0]["email"], snap.data?.docs[0]["birthdate"].toDate(),
+                                                    "", snap.data?.docs[0]["city"], snap.data?.docs[0]["address"],
+                                                    snap.data?.docs[0]["firstname"], snap.data?.docs[0]["lastname"],
+                                                    snap.data?.docs[0]["phone"],
+                                                    snap.data?.docs[0]["picture"],
+                                                    snap.data?.docs[0]["price"],snap.data?.docs[0]["sport"],snap.data?.docs[0]["cin"],
+                                                    snap.data?.docs[0]["cv"],snap.data?.docs[0]["diplome"]), widget.client)){
+                                                  ConversationService().create_conversation(Coach(snap.data?.docs[0]["id"], snap.data?.docs[0]["email"], snap.data?.docs[0]["birthdate"].toDate(),
+                                                      "", snap.data?.docs[0]["city"], snap.data?.docs[0]["address"],
+                                                      snap.data?.docs[0]["firstname"], snap.data?.docs[0]["lastname"],
+                                                      snap.data?.docs[0]["phone"],
+                                                      snap.data?.docs[0]["picture"],
+                                                      snap.data?.docs[0]["price"],snap.data?.docs[0]["sport"],snap.data?.docs[0]["cin"],
+                                                      snap.data?.docs[0]["cv"],snap.data?.docs[0]["diplome"]), widget.client);
                                                 }
-                                                Conversation conversation=await ConversationService().get_conversation(widget.client, coach);
+                                                Conversation conversation=await ConversationService().get_conversation(widget.client, Coach(snap.data?.docs[0]["id"], snap.data?.docs[0]["email"], snap.data?.docs[0]["birthdate"].toDate(),
+                                                    "", snap.data?.docs[0]["city"], snap.data?.docs[0]["address"],
+                                                    snap.data?.docs[0]["firstname"], snap.data?.docs[0]["lastname"],
+                                                    snap.data?.docs[0]["phone"],
+                                                    snap.data?.docs[0]["picture"],
+                                                    snap.data?.docs[0]["price"],snap.data?.docs[0]["sport"],snap.data?.docs[0]["cin"],
+                                                    snap.data?.docs[0]["cv"],snap.data?.docs[0]["diplome"]));
 
                                                 Navigator.push(context, MaterialPageRoute(
                                                   builder: (context){

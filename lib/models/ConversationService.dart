@@ -11,7 +11,7 @@ class ConversationService{
     if (doc.length==0){
       return false;
     }
-
+    print("conversation exists");
     return true;
 
   }
