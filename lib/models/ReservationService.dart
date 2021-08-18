@@ -61,7 +61,7 @@ class ReservationService{
   }
 
 
-  Future<Null> confirm_reservation(Reservation reservation) async{
+  confirm_reservation(Reservation reservation) async{
     await FirebaseFirestore.instance.collection("reservations").doc(reservation.id).set(
         {
           'id':reservation.id,
@@ -75,7 +75,7 @@ class ReservationService{
         }
     );
   }
-  Future<Null> pay_reservation(Reservation reservation) async{
+  pay_reservation(Reservation reservation) async{
     await FirebaseFirestore.instance.collection("reservations").doc(reservation.id).set(
         {
           'id':reservation.id,
@@ -89,7 +89,7 @@ class ReservationService{
         }
     );
   }
-  Future<Null> finish_reservation(Reservation reservation) async{
+  finish_reservation(Reservation reservation) async{
     await FirebaseFirestore.instance.collection("reservations").doc(reservation.id).set(
         {
           'id':reservation.id,
@@ -127,5 +127,18 @@ class ReservationService{
 
     return res;
   }
+  Future<Reservation> get_reservation(String idReservation) async{
+    var docs=(await FirebaseFirestore.instance.collection("reservations").doc(idReservation).snapshots().first);
+
+    Reservation reservation=Reservation(
+        id: docs.data()!["id"],idclient: docs.data()!["idClient"],idcoach: docs.data()!["idCoach"],
+        duration:docs.data()!["duration"] ,dateDebut:docs.data()!["dateDebut"].toDate() ,
+        isConfirmed:docs.data()!["isConfirmed"] ,isPaid:docs.data()!["isPaid"] ,isOver:docs.data()!["isOver"] );
+
+
+    return reservation;
+  }
 
 }
+
+

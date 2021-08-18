@@ -27,6 +27,7 @@ class _ClientExercicesState extends State<ClientExercices> {
   late String state;
   @override
   Widget build(BuildContext context) {
+    print("isover:${widget.reservation.isOver}");
     return
       Scaffold(
         resizeToAvoidBottomInset: false,
@@ -55,13 +56,44 @@ class _ClientExercicesState extends State<ClientExercices> {
                                 children:[
                                   Text(doc!["name"]),
                                   Text(rep.toString()),
+                                  widget.reservation.isOver?
+                                  IgnorePointer(
+                                    child: DropdownButton<String>(
+                                      dropdownColor: Colors.grey,
+                                      value: state,
+                                      underline: Container(
+                                        height: 2,
+                                        color: Colors.blueAccent,
+                                      ),
+                                      onChanged: widget.reservation.isOver?(s){}:(String? newValue) {
+                                        setState(() {
+                                          state = newValue!;
+                                          ExerciceService().update_exercice(Exercice(id: doc["id"],
+                                              idReservation: doc["idReservation"], picture: doc["picture"],
+                                              name: doc["name"], state: state, rep: doc["rep"]));
+                                        });
+                                      },
+
+                                      items:<String>["En Attente", "Réussi","Raté"]
+                                          .map<DropdownMenuItem<String>>((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(
+                                            value,
+                                            style: TextStyle(color: Colors.grey),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ):
+
                                   DropdownButton<String>(
                                     value: state,
                                     underline: Container(
                                       height: 2,
                                       color: Colors.blueAccent,
                                     ),
-                                    onChanged: (String? newValue) {
+                                    onChanged: widget.reservation.isOver?(s){}:(String? newValue) {
                                       setState(() {
                                         state = newValue!;
                                         ExerciceService().update_exercice(Exercice(id: doc["id"],
@@ -105,12 +137,13 @@ class _ClientExercicesState extends State<ClientExercices> {
                 ),
 
               ),
-              ElevatedButton(onPressed: (){
+              !widget.reservation.isOver?ElevatedButton(onPressed: (){
                 ReservationService().finish_reservation(widget.reservation);
                 Navigator.push(context, MaterialPageRoute(builder: (context){
                   return ReviewPage(widget.reservation);
-                }));
-              }, child: Text("Terminer le programme"))
+                })
+                );
+              }, child: Text("Terminer le programme")):Text("")
             ],
           ),
         ),

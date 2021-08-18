@@ -21,6 +21,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'CustomAppBar.dart';
 import 'models/Conversation.dart';
 import 'models/ConversationService.dart';
+import 'models/NotificationService.dart';
 import 'models/Reservation.dart';
 class Welcome_Coach extends StatefulWidget {
   final String title;
@@ -88,8 +89,8 @@ class _Welcome_Coach extends State<Welcome_Coach> {
                   itemBuilder: (context, index) {
                     var doc = snapshot.data!.docs[index];
                     return StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance.collection("coaches")
-                          .where("id", isEqualTo: doc["idCoach"])
+                      stream: FirebaseFirestore.instance.collection("users")
+                          .where("id", isEqualTo: doc["idClient"])
                           .snapshots(),
                       builder: (context, snap) {
                         return snap.hasData ? Wrap(children: [
@@ -176,8 +177,8 @@ class _Welcome_Coach extends State<Welcome_Coach> {
                       });
                     },
                     items: [
-                      BottomNavigationBarItem(icon: Icon(Icons.height),label: "Réserver",),
-                      BottomNavigationBarItem(icon: Icon(Icons.clear), label: "Modifier Infos",),
+                      BottomNavigationBarItem(icon: Icon(Icons.event),label: "Mes demandes",),
+                      BottomNavigationBarItem(icon: Icon(Icons.perm_identity), label: "Modifier Infos",),
                       BottomNavigationBarItem(icon: Icon(Icons.message), label: "Conversations",),
 
                     ],
@@ -185,21 +186,61 @@ class _Welcome_Coach extends State<Welcome_Coach> {
 
                   body: tabs[tabindex]
     ):Scaffold(
-    appBar: custom_appbar("title", context, true, true),
+                appBar: custom_appbar(("Verify Email"), context, true, true),
                 body: Column(
                   children: [
-                    Text("Mail pas vérifié"),
-                    ElevatedButton(onPressed: (){
+                    SizedBox(
+                      height: 30,
+                    ),
+                    Align(
+                      child: Text(
+                        "Verify Your Email",
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 25.0,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      alignment: Alignment.topLeft,
+                    ),
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    Text(
+                      " Veuillez vérifier votre adresse e-mail\n à laquelle nous venons d'envoyer un email",
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14.0),
+                    ),
+                    SizedBox(height: 15.0,),
+
+                    // Button to reset Password email //
+
+                    materialbutton(Colors.blue[200], "Renvoyer Email de Verification", context,(){
                       Auth().sendVerificationEmail();
-                    }, child: Text("Renvoyer lien de vérification"))
+                    }),
+
                   ],
                 ),
-    ));
+              ));
 
 
 
   }
-  
+  Widget materialbutton(couleur, text, context,onPressed) {
+    return Material(
+      elevation: 5.0,
+      borderRadius: BorderRadius.circular(30.0),
+      color: couleur,
+      child: MaterialButton(
+        minWidth: MediaQuery.of(context).size.width,
+        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+        onPressed: onPressed,
+        child: Text(text,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontFamily: 'Montserrat', fontSize: 20.0)
+                .copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+
   Widget reservations_coach(BuildContext context){
     final smtpServer = gmail(username, password);
 
@@ -259,9 +300,10 @@ class _Welcome_Coach extends State<Welcome_Coach> {
                           snapshot.data?.docs[index]["isConfirmed"] == false ?
                           Wrap( children:
                           [
-                            ElevatedButton(onPressed: () async
+                            IconButton(onPressed: () async
                             {
-                              final message = Message()
+
+                              /*final message = Message()
                                 ..from = Address(username, 'Coachinow')
                                 ..recipients.add(client.email)
                                 ..subject =  "Votre demande de rendez-vous a été validée !"
@@ -274,42 +316,28 @@ class _Welcome_Coach extends State<Welcome_Coach> {
                                 for (var p in e.problems) {
                                   print('Problem: ${p.code}: ${p.msg}');
                                 }
-                              }
+                              }*/
 
                               ReservationService().confirm_reservation(reservation);
                             },
-                                child: Text("Valider")),
+                                icon: Icon(Icons.check,color: Colors.green,)),
                             SizedBox(width: 5,),
-                            ElevatedButton(onPressed: ()async
+                            IconButton(onPressed: ()async
                             {
-                              final message = Message()
-                                ..from = Address(username, 'Coachinow')
-                                ..recipients.add(client.email)
-                                ..subject =  "Votre demande de rendez-vous a été refusée !"
-                                ..text = "Votre demande de rendez-vous le ${reservation.dateDebut} a été refusée par ${widget.coach.firstname} ${widget.coach.lastname} ";
-                              try {
-                                final sendReport = await send(message, smtpServer);
-                                print('Message sent: ' + sendReport.toString());
-                              } on MailerException catch (e) {
-                                print('Message not sent.');
-                                for (var p in e.problems) {
-                                  print('Problem: ${p.code}: ${p.msg}');
-                                }
-                              }
+
+                              NotificationService().sendNotification(client.uid, "Votre demande a été refusée !");
 
                               ReservationService().refus_reservation(reservation);
                             },
-                              child: Text("Refuser")
+                              icon: Icon(Icons.close,color: Colors.red)
 
-                              ,
-                              style: ElevatedButton.styleFrom(primary: Colors.red),
 
                             )
                           ],)  :
                           snapshot.data?.docs[index]["isPaid"]?
                           Wrap(
                             children:[
-                              ElevatedButton(
+                              IconButton(
                                 onPressed: () async
                                 {
                                   if(!await ConversationService().conversation_exists(widget.coach, client)){
@@ -318,8 +346,7 @@ class _Welcome_Coach extends State<Welcome_Coach> {
                                   Conversation conversation=await ConversationService().get_conversation(client, widget.coach);
                                   Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatScreenCoach(conversation:conversation )));
                                 },
-                                child: Icon(Icons.phone, color: Colors.white,),
-                                style: ElevatedButton.styleFrom(primary: Colors.green),
+                                icon: Icon(Icons.message, color: Colors.black,),
                               ),
                               SizedBox(width: 5,),
                               ElevatedButton(

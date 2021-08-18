@@ -3,6 +3,8 @@ import 'package:flutter_credit_card/flutter_credit_card.dart';
 import 'package:prof_sport/models/Reservation.dart';
 import 'package:prof_sport/models/ReservationService.dart';
 
+import 'models/NotificationService.dart';
+
 class paymentScreen extends StatefulWidget {
 
   late Reservation reservation ;
@@ -91,6 +93,8 @@ class _paymentScreenState extends State<paymentScreen> {
                 onPressed: () async {
                   if (formKey.currentState!.validate()) {
                     ReservationService().pay_reservation(widget.reservation);
+                    NotificationService().sendNotification(widget.reservation.idcoach, "Le client a payé pour la séance !");
+
                     Navigator.pop(context);
                     print('valid!');
                   } else {

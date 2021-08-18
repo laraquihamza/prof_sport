@@ -14,20 +14,22 @@ import 'package:toast/toast.dart';
 import 'CoachOuClient.dart.dart';
 import 'models/Client.dart';
 import 'welcome_client.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `initializeApp` before using other Firebase services.
-  await Firebase.initializeApp();
-  print('Handling a background message ${message.messageId}');
-}
-late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-late AndroidNotificationChannel channel;
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+
 void main() async {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp,        DeviceOrientation.portraitDown,
   ]);
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
+  OneSignal.shared.setAppId("4ce78b24-9c33-42f2-bc11-61485d012dd6");
+ // The promptForPushNotificationsWithUserResponse function will show the iOS push notification prompt. We recommend removing the following code and instead using an In-App Message to prompt for notification permission
+  OneSignal.shared.promptUserForPushNotificationPermission().then((accepted) {
+    print("Accepted permission: $accepted");
+  });
+
+
+
 
   runApp(MyApp( await Auth().user_type()));
 }
@@ -106,7 +108,11 @@ class _MyHomePageState extends State<MyHomePage> {
   String password = "";
 
 
+  @override void initState() {
 
+
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -225,7 +231,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     }
     else if(await auth.user_type()=="coach"){
-      NotificationService().saveDeviceToken(Auth().getCurrentUserUid());
       coach = await auth.getCurrentCoach();
       Toast.show("Connexion réussie ", context,
           duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);

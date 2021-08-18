@@ -254,9 +254,10 @@ class _Welcome_Client extends State<Welcome_Client> {
                                                 snap2.data!.docs.length - 1;
                                             if (length != -1) {
                                               doc = snap2.data!.docs[length];
+                                              date = doc==null?doc["date"].toDate():DateTime.now();
+
                                             }
                                           }
-                                          date = doc["date"].toDate();
                                           return
                                             snap2.hasData ? Row(
                                               children: [
@@ -525,10 +526,7 @@ class _Welcome_Client extends State<Welcome_Client> {
             }, child: Text("Enregistrer")),
             ElevatedButton(child: Text("Supprimer le compte"),
               onPressed: () async {
-                Auth().deleteClient(widget.client);
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return MyHomePage(title: 'Home',);
-                }));
+              dialog_supprimer();
               },
             )
 
@@ -537,6 +535,36 @@ class _Welcome_Client extends State<Welcome_Client> {
         ),
       );
     }
+
+    dialog_supprimer(){
+      AlertDialog alertDialog=AlertDialog(
+
+        title: Text("Supprimer compte ?"),
+        actions: [
+          ElevatedButton(
+          style: ElevatedButton.styleFrom(primary: Colors.green),
+          onPressed: (){
+            Auth().deleteClient(widget.client);
+            Navigator.of(context,rootNavigator: true).pop(context);
+            Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context){
+              return MyApp("error");
+            }),(Route<dynamic> route)=>false);
+          }
+          ,
+            child: Text("Oui"),
+          ),
+          ElevatedButton(onPressed: (){
+            Navigator.of(context,rootNavigator: true).pop(context);
+          }, child: Text("Non"),
+          style: ElevatedButton.styleFrom(primary: Colors.red),
+          )
+        ],
+      );
+      showDialog(barrierDismissible:false,context: context, builder: (buildcontext){
+        return alertDialog;
+      });
+    }
+
     late List <Widget> pages;
     late Timer timer;
     late bool isVerified;
@@ -573,9 +601,9 @@ class _Welcome_Client extends State<Welcome_Client> {
                 },
                 items: [
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.height), label: "Réserver",),
+                    icon: Icon(Icons.event), label: "Réserver",),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.clear), label: "Modifier Infos",),
+                    icon: Icon(Icons.perm_identity), label: "Modifier Infos",),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.message), label: "Conversations",),
 
@@ -585,17 +613,57 @@ class _Welcome_Client extends State<Welcome_Client> {
               body: pages[tabindex]
 
           ) : Scaffold(
-            appBar: custom_appbar("title", context, true, true),
+            appBar: custom_appbar(("Verify Email"), context, true, true),
             body: Column(
               children: [
-                Text("Mail pas vérifié"),
-                ElevatedButton(onPressed: () {
-                  Auth().sendVerificationEmail();
-                }, child: Text("Renvoyer lien de vérification"))
+                SizedBox(
+                  height: 30,
+                ),
+                Align(
+                  child: Text(
+                    "Verify Your Email",
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 25.0,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  alignment: Alignment.topLeft,
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
+                Text(
+                  " Veuillez vérifier votre adresse e-mail\n à laquelle nous venons d'envoyer un email",
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14.0),
+                ),
+                SizedBox(height: 15.0,),
+
+                // Button to reset Password email //
+
+                    materialbutton(Colors.blue[200], "Renvoyer Email de Verification", context,(){
+                      Auth().sendVerificationEmail();
+                    }),
+
               ],
             ),
           ));
     }
+  Widget materialbutton(couleur, text, context,onPressed) {
+    return Material(
+      elevation: 5.0,
+      borderRadius: BorderRadius.circular(30.0),
+      color: couleur,
+      child: MaterialButton(
+        minWidth: MediaQuery.of(context).size.width,
+        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+        onPressed: onPressed,
+        child: Text(text,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontFamily: 'Montserrat', fontSize: 20.0)
+                .copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
 
     int getAge(DateTime birthdate) {
       DateTime now = DateTime.now();

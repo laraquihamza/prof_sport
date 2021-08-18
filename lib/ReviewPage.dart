@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:prof_sport/CustomAppBar.dart';
 import 'package:prof_sport/models/Reservation.dart';
+import 'package:prof_sport/models/ReservationService.dart';
 import 'package:prof_sport/models/Review.dart';
 
 import 'package:prof_sport/models/ReviewService.dart';
+import 'package:toast/toast.dart';
 
 class ReviewPage extends StatefulWidget {
   @override
@@ -58,6 +60,11 @@ class _ReviewPageState extends State<ReviewPage> {
             onPressed: (){
               ReviewService().addReview(Review(idClient:widget.reservation.idclient,id:"",
                   idReservation: widget.reservation.id,idCoach: widget.reservation.idcoach,comment: comment,grade: grade));
+              ReservationService().finish_reservation(widget.reservation);
+              Toast.show("Vous avez noté le coach", context);
+              NavigatorState nav = Navigator.of(context);
+              nav.pop();
+              nav.pop();
             },
           )
         ],

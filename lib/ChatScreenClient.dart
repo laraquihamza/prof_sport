@@ -24,6 +24,8 @@ class _ChatScreenState extends State<ChatScreenClient> {
   String text="";
 
   TextEditingController controller=TextEditingController();
+  final _controller = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return    Scaffold(
@@ -38,7 +40,12 @@ class _ChatScreenState extends State<ChatScreenClient> {
               child:                            StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance.collection("messages").where("idConversation",isEqualTo: widget.conversation.id).orderBy("date").snapshots(),
                   builder: (context,snapshot){
+                    Timer(
+                      Duration(milliseconds: 100),
+                          () => _controller.jumpTo(_controller.position.maxScrollExtent),
+                    );
                     return snapshot.hasData?ListView.builder(
+                      controller: _controller,
                       shrinkWrap: true,
                         itemCount: snapshot.data!.size,
                         itemBuilder: (context,index){
@@ -60,7 +67,7 @@ class _ChatScreenState extends State<ChatScreenClient> {
               child:             Row(
                 children: [
                   Container(
-                    width: MediaQuery.of(context).size.width*0.7,
+                    width: MediaQuery.of(context).size.width*0.8,
                     child:                   TextField(
 
                       controller: controller,
@@ -70,14 +77,14 @@ class _ChatScreenState extends State<ChatScreenClient> {
                     )
                     ,
                   )
-                  ,ElevatedButton(onPressed: (){
+                  ,IconButton(onPressed: (){
                     if(text!="") {
                       MessageService().sendMessage(
                           widget.conversation.idClient, widget.conversation.idCoach,widget.conversation.id, text);
                     }
                     controller.text="";
                     text="";
-                  }, child: Text("envoyer"))
+                  }, icon: Icon(Icons.send,color: Colors.green,))
                 ],
               )
               ,

@@ -23,25 +23,5 @@ class Helper
   
 
 
-   Widget field(String name_field, Wrapper str, bool isPassword) 
-   {
-    return TextField(
-      obscureText: isPassword,
-      keyboardType: TextInputType.text,
-      onChanged: (s) {
-        setState(() {
-          str.str = s;
-        });
-      },
-      style: TextStyle(fontFamily: 'Montserrat', fontSize: 20.0),
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: name_field,
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
-    );
-  }
- 
-  
 
 }

@@ -15,6 +15,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:prof_sport/client_exercices.dart';
 import 'models/Conversation.dart';
 import 'models/ConversationService.dart';
+import 'models/NotificationService.dart';
 import 'models/Reservation.dart';
 class ListeDemande extends StatefulWidget {
   final String title;
@@ -101,8 +102,11 @@ class _ListeDemande extends State<ListeDemande> {
                                           IconButton(onPressed: (){}, icon: Icon(Icons.schedule, color: Colors.grey)),
                                           IconButton(icon:Icon(Icons.close,color: Colors.red,
                                             ),
+
                                             onPressed: ()async
                                             {
+                                              NotificationService().sendNotification(coach.uid, "Une demande de rendez-vous a été annulée !");
+/*
                                               smtpServer = gmail(username, password);
                                               final message = Message()
                                                 ..from = Address(username, 'Coachinow')
@@ -118,7 +122,7 @@ class _ListeDemande extends State<ListeDemande> {
                                                   print('Problem: ${p.code}: ${p.msg}');
                                                 }
                                               }
-
+*/
                                               ReservationService().refus_reservation(reservation);
                                             },
                                             ),
@@ -126,17 +130,16 @@ class _ListeDemande extends State<ListeDemande> {
                                         ],)  :
                                         Wrap(
                                           children:[
-                                            !(snapshot.data?.docs[index]["isPaid"])?ElevatedButton(
+                                            !(snapshot.data?.docs[index]["isPaid"])?IconButton(
                                               onPressed: ()
                                               {
                                                 print("Payer");
                                                 Navigator.push(context, MaterialPageRoute(builder: (context)=>paymentScreen(reservation : reservation)));
 
                                               },
-                                              child: Text("Payer"),
-                                              style: ElevatedButton.styleFrom(primary: Colors.green),
+                                              icon: Icon(Icons.payments),
 
-                                            ):ElevatedButton(
+                                            ):IconButton(
                                               onPressed: ()async
                                               {
                                                 if(!await ConversationService().conversation_exists(Coach(snap.data?.docs[0]["id"], snap.data?.docs[0]["email"], snap.data?.docs[0]["birthdate"].toDate(),
@@ -170,7 +173,7 @@ class _ListeDemande extends State<ListeDemande> {
                                                 ));
 
                                               },
-                                              child: Text("Chat")
+                                              icon: Icon(Icons.message)
                                     ),
 
                                             SizedBox(width: 5,),

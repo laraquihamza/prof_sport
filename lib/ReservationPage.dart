@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mailer/smtp_server/gmail.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:prof_sport/models/Coach.dart';
 import 'package:prof_sport/models/NotificationService.dart';
 import 'package:prof_sport/models/ReservationService.dart';
@@ -147,7 +148,9 @@ class _ReservationPageState extends State<ReservationPage> {
                     reservation!.add(Duration(
                         hours: time!.hour, minutes: time!.minute, seconds: 0)),
                     duration);
-                final message = Message()
+                print("uid:${widget.coach.uid}");
+                NotificationService().sendNotification(widget.coach.uid, "Vous avez reçu une nouvelle demande");
+                /*final message = Message()
                   ..from = Address(username, 'Coachinow')
                   ..recipients.add(widget.coach.email)
                   ..subject = "Vous avez reçu une nouvelle demande !"
@@ -161,7 +164,7 @@ class _ReservationPageState extends State<ReservationPage> {
                   for (var p in e.problems) {
                     print('Problem: ${p.code}: ${p.msg}');
                   }
-                }
+                }*/
                 Toast.show("Réservation réussie", context);
                 Navigator.pop(context);
               }

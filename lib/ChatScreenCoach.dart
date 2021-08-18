@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:prof_sport/CustomAppBar.dart';
@@ -20,8 +22,15 @@ class ChatScreenCoach extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreenCoach> {
   String text="";
   TextEditingController controller=TextEditingController();
+  final _controller = ScrollController();
+
+  @override void initState() {
+    super.initState();
+
+  }
   @override
   Widget build(BuildContext context) {
+
     return    Scaffold(
       resizeToAvoidBottomInset: true ,
       appBar: custom_appbar("Exercices Coach", context, true,false),
@@ -34,8 +43,14 @@ class _ChatScreenState extends State<ChatScreenCoach> {
               child:   StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance.collection("messages").where("idConversation",isEqualTo: widget.conversation.id).orderBy("date").snapshots(),
                   builder: (context,snapshot){
+                    Timer(
+                      Duration(milliseconds: 100),
+                          () => _controller.jumpTo(_controller.position.maxScrollExtent),
+                    );
+
                     return                     snapshot.hasData?
                     ListView.builder(
+                      controller: _controller,
                         shrinkWrap: true,
                         itemCount: snapshot.data!.size,
                         itemBuilder: (context,index){
@@ -59,7 +74,7 @@ class _ChatScreenState extends State<ChatScreenCoach> {
               child:             Row(
                 children: [
                   Container(
-                    width: MediaQuery.of(context).size.width*0.7,
+                    width: MediaQuery.of(context).size.width*0.8,
                     child:                   TextField(
 
                       controller: controller,
@@ -69,13 +84,14 @@ class _ChatScreenState extends State<ChatScreenCoach> {
                     )
                     ,
                   )
-                  ,ElevatedButton(onPressed: (){
+                  ,IconButton(onPressed: (){
                     if(text!=""){
                       MessageService().sendMessage(widget.conversation.idCoach, widget.conversation.idClient,widget.conversation.id, text);
                       controller.text="";
                       text="";
                     }
-                  }, child: Text("envoyer"))
+                  }, icon: Icon(Icons.send,color:Colors.green)
+                  )
                 ],
               )
               ,

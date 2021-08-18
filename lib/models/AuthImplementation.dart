@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,12 +6,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:prof_sport/models/Client.dart';
 import 'package:prof_sport/models/Coach.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'User.dart';
+import 'package:crypto/crypto.dart';
+import 'package:hex/hex.dart';
+
 abstract class AuthImplementation {
   Future<String> SignIn(String email, String password);
   Future<String> SignUp(String email, String password);
@@ -66,6 +71,26 @@ class Auth implements AuthImplementation {
      _firebaseAuth.setPersistence(Persistence.SESSION);
      UserCredential user = await _firebaseAuth.signInWithEmailAndPassword(
         email: email, password: password);
+    if(user.user!=null){
+      String externalUserId = user.user!.uid; // You will supply the external user id to the OneSignal SDK
+      String useridHash="";
+      OneSignal.shared.getDeviceState().then((deviceState) {
+        var bytes=utf8.encode(deviceState!.userId!);
+        var digest= sha256.convert(bytes);
+        useridHash=HEX.encode(digest.bytes);
+      });
+      OneSignal.shared.setExternalUserId(externalUserId,useridHash).then((results) {
+        print(results.toString());
+        print("jojojoo");
+      }).catchError((error) {
+        print(error.toString());
+      });
+
+    }
+
+// Setting External User Id with Callback Available in SDK Version 3.9.3+
+
+
     return user.user!.uid;
   }
   Future<bool> isVerified()async{
@@ -81,6 +106,7 @@ class Auth implements AuthImplementation {
      await _firebaseAuth.currentUser!.sendEmailVerification();
   }
   resetPassword(String email){
+     print("email:$email");
      _firebaseAuth.sendPasswordResetEmail(email: email);
   }
   reload(){

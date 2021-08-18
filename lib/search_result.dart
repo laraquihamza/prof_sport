@@ -84,7 +84,7 @@ class _SearchResult extends State<SearchResult> {
                       snapshot.data!.docs[index]["diplome"]
 
                       )), builder: (context,s){
-                          return Text(average==-1.0?"Pas noté":average.toString());
+                          return Text(average==-1.0?" - ":average.toString());
                         }),
 
                         //  Spacer(),

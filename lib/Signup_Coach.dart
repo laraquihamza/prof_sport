@@ -202,6 +202,7 @@ Future<Null> uploadPicture() async{
                     }
 
                   }
+
                   else{
                     dialog_error(errors);
                   }
@@ -431,7 +432,7 @@ Future<Null> uploadPicture() async{
       content: Text(errors),
       actions: [
         ElevatedButton(child:Text("OK"),onPressed: (){
-          Navigator.of(context).pop();
+          Navigator.of(context,rootNavigator: true).pop(context);
         },)
       ],
     );
@@ -463,74 +464,39 @@ Future<Null> uploadPicture() async{
     }
     return age;
   }
-  Widget field(String name_field, Wrapper str, bool isPassword) {
+
+  Widget field(String namefield, Wrapper str, bool isPassword)
+  {
     return Column(
       children: [
-        Align(
-          alignment: Alignment.topLeft,
-          child: Text(name_field),
-        ),
+        SizedBox(height: 5,),
+
         TextField(
-            obscureText: isPassword,
-            keyboardType: TextInputType.text,
-            onChanged: (s) {
-              setState(() {
-                str.str = s;
-              });
-            },
-            decoration: InputDecoration(
-                border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey)),
-                isDense: true)),
+          obscureText: isPassword,
+          keyboardType: TextInputType.text,
+          onChanged: (s) {
+            setState(() {
+              str.str = s;
+            });
+          },
+          style: TextStyle(fontFamily: 'Montserrat', fontSize: 20.0),
+          decoration: InputDecoration(
+              hintText: namefield,
+              hintStyle: TextStyle(fontSize: 15),
+              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(32.0))),
+        ),
+        SizedBox(height: 10,),
       ],
+
     );
   }
 
-  Widget field_email(String name_field, bool isPassword) {
-    return Column(
-      children: [
-        Align(
-          alignment: Alignment.topLeft,
-          child: Text(name_field),
-        ),
-        TextField(
-            obscureText: isPassword,
-            keyboardType: TextInputType.text,
-            onChanged: (s) {
-              setState(() {
-                email.str = s;
-              });
-            },
-            decoration: InputDecoration(
-                border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey)),
-                isDense: true)),
-      ],
-    );
-  }
 
-  Widget field_password(String name_field, bool isPassword) {
-    return Column(
-      children: [
-        Align(
-          alignment: Alignment.topLeft,
-          child: Text(name_field),
-        ),
-        TextField(
-            obscureText: isPassword,
-            keyboardType: TextInputType.text,
-            onChanged: (s) {
-              setState(() {
-                password.str = s;
-              });
-            },
-            decoration: InputDecoration(
-                border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey)),
-                isDense: true)),
-      ],
-    );
-  }
+
+
+
 
 }
 
