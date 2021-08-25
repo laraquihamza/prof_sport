@@ -127,6 +127,11 @@ class _SignupClient extends State<SignupClient> {
                   valid=false;
                   errors+="- Veuillez selectionner un numéro de téléphone valide\n";
                 }
+                if(await validators.isEmailAlreadyUsed(email.str)){
+                  valid=false;
+                  errors+="- L'adresse mail est déja utilisée \n";
+                  dialog_error(errors);
+                }
 
                 if(valid){
                   try{
@@ -143,11 +148,6 @@ class _SignupClient extends State<SignupClient> {
 
                   }
                   catch(e){
-                    if(validators.isEmailAlreadyUsed(e.toString())){
-                      valid=false;
-                      errors+="- L'adresse mail est déja utilisée \n";
-                      dialog_error(errors);
-                    }
                   }
 
                 }

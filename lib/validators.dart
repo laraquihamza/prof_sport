@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:toast/toast.dart';
@@ -78,11 +79,21 @@ class Validators {
   }
 
   // Login Validation //
-  bool isEmailAlreadyUsed(String error) {
-    if (error.contains("The email address is already in use by another account.")) {
-      return true;
+  Future<bool> isEmailAlreadyUsed(String email) async{
+    var docs= (await FirebaseFirestore.instance.collection("users").snapshots().first).docs;
+    var c;
+    for (c in docs){
+      if(c["email"]==email){
+        return true;
+      }
     }
-      return false;
+    docs= (await FirebaseFirestore.instance.collection("coaches").snapshots().first).docs;
+    for (c in docs){
+      if(c["email"]==email){
+        return true;
+      }
+    }
+    return false;
   }
 
   bool isEmailNotExist(String error) {

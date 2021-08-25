@@ -177,6 +177,11 @@ Future<Null> uploadPicture() async{
                     valid=false;
                     errors+="- Veuillez selectionner un numéro de téléphone valide\n";
                   }
+                  if(await validators.isEmailAlreadyUsed(email.str)){
+                    valid=false;
+                    errors+="- L'adresse mail est déja utilisée \n";
+                    dialog_error(errors);
+                  }
 
                   if(valid){
                     try{
@@ -194,11 +199,6 @@ Future<Null> uploadPicture() async{
                     }
                     catch(e){
                       print("error:${e.toString()}");
-                      if(validators.isEmailAlreadyUsed(e.toString())){
-                        valid=false;
-                        errors+="- L'adresse mail est déja utilisée \n";
-                        dialog_error(errors);
-                      }
                     }
 
                   }
