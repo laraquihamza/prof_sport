@@ -21,6 +21,7 @@ class _CoachExercicesState extends State<CoachExercices> {
   String picture="";
   WrapperInt rep=WrapperInt(5);
   var controller_name = TextEditingController();
+  var controller_rep=TextEditingController();
 
 
   @override
@@ -32,32 +33,21 @@ class _CoachExercicesState extends State<CoachExercices> {
         body: Column(
           children: [
             Container(
-              height: MediaQuery.of(context).size.height*0.3,
+              height: MediaQuery.of(context).size.height*0.35,
               child: Column(
                 children: [
                   field("Nom de l'exercice", name, false, controller_name),
                   SizedBox(height:5),
-                  DropdownButton<int>(
-                    value: rep.str,
-                    underline: Container(
-                      height: 2,
-                      color: Colors.blueAccent,
-                    ),
-                    onChanged: (int? newValue) {
-                      setState(() {
-                        rep.str = newValue!;
-                      });
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Text("Nombre de répetitions"),
+                  ),
+                  TextField(
+                    keyboardType: TextInputType.number,
+                    controller: controller_rep,
+                    onChanged: (s){
+                      rep.str=int.parse(s);
                     },
-                    items:[5,10,12,15,20,30,50]
-                        .map<DropdownMenuItem<int>>((int value) {
-                      return DropdownMenuItem<int>(
-                        value: value,
-                        child: Text(
-                          value.toString(),
-                          style: TextStyle(color: Colors.blueAccent),
-                        ),
-                      );
-                    }).toList(),
                   ),
                   ElevatedButton(onPressed: ()async{
                     await uploadPicture();
@@ -72,6 +62,7 @@ class _CoachExercicesState extends State<CoachExercices> {
                         controller_name.clear();
                         rep.str=5;
                         picture="";
+                        controller_rep.clear();
                       });
                     }
 
@@ -82,7 +73,7 @@ class _CoachExercicesState extends State<CoachExercices> {
               ),
             ),
             Container(
-              height: MediaQuery.of(context).size.height*0.55,
+              height: MediaQuery.of(context).size.height*0.50,
               child:                 StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance.collection("exercices").
                 where("idReservation",isEqualTo: widget.reservation.id).snapshots(),

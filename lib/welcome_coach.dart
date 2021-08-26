@@ -72,75 +72,133 @@ class _Welcome_Coach extends State<Welcome_Coach> {
   }
 
   Widget conversations_page() {
+    DateTime date = DateTime.now();
     return
       StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance.collection("conversations").where(
               "idCoach", isEqualTo: widget.coach.uid).snapshots(),
           builder: (context, snapshot) {
-            return snapshot.hasData ? InkWell(
-              onTap: ()async{
-                Navigator.push(context, MaterialPageRoute(builder: (context){
-                  return ChatScreenCoach(conversation: Conversation(id:snapshot.data!.docs[index]["id"],
-                      idCoach:snapshot.data!.docs[index]["idCoach"],idClient: snapshot.data!.docs[index]["idClient"]));
-                }));
-              },
-              child: ListView.builder(shrinkWrap: true,
-                  itemCount: snapshot.data!.size,
-                  itemBuilder: (context, index) {
-                    var doc = snapshot.data!.docs[index];
-                    return StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance.collection("users")
-                          .where("id", isEqualTo: doc["idClient"])
-                          .snapshots(),
-                      builder: (context, snap) {
-                        return snap.hasData ? Wrap(children: [
-                          StreamBuilder(
-                            stream: Auth().downloadURL(snap.data!.docs[0]["picture"]).asStream(),
-                            builder: (context,snappicture){
-                              return Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                        image: NetworkImage(snappicture.data as String)
-                                    )
-                                ),
-                              );
-                            },
-                          ),
-                          Text(snap.data!.docs[0]["firstname"]),
-                          Text(snap.data!.docs[0]["lastname"]),
-                          StreamBuilder<QuerySnapshot>(
-                            stream: FirebaseFirestore.instance.collection("messages").where("idConversation",isEqualTo: doc["id"]).orderBy("date").snapshots(),
-                            builder: (context,snap2){
-                              int length=0;
-                              var doc;
-                              if(snap2.hasData){
-                                length=snap2.data!.docs.length-1;
-                                if(length!=-1){
-                                  doc=snap2.data!.docs[length];
-                                }
-                              }
-                              return snap2.hasData?Wrap(
-                                children: [
-                                  length!=-1?Text(get_substring(doc["message"])):Text(""),
-                                  length!=-1?Text("${doc["date"].toDate()}"):Text("")
-
-                                ],
-                              ):Text("");
-                            },
-                          )
-                        ]
-                        )
-                            : Text("");
+            return snapshot.hasData ?
+            ListView.builder(shrinkWrap: true,
+                itemCount: snapshot.data!.size,
+                itemBuilder: (context, index) {
+                  var doc = snapshot.data!.docs[index];
+                  int length = 0;
+                  return InkWell(
+                      onTap: () async {
+                        Navigator.push(
+                            context, MaterialPageRoute(builder: (context) {
+                          return ChatScreenCoach(conversation: Conversation(
+                              id: snapshot.data!.docs[index]["id"],
+                              idCoach: snapshot.data!.docs[index]["idCoach"],
+                              idClient: snapshot.data!
+                                  .docs[index]["idClient"]));
+                        }));
                       },
-                    );
-                  }
-              ),
-            ) : Text("");
+                      child: StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance.collection(
+                              "users")
+                              .where("id", isEqualTo: doc["idClient"])
+                              .snapshots(),
+                          builder: (context, snap) {
+                            return snap.hasData ? Row(children: [
+                              StreamBuilder(
+                                stream: Auth().downloadURL(
+                                    snap.data!.docs[0]["picture"]).asStream(),
+                                builder: (context, snappicture) {
+                                  return CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                        snappicture.data as String),
+                                    maxRadius: 30,
+                                  );
+                                },
+                              ),
+                              SizedBox(width: 16,),
+                              Expanded(
+                                child: Container(
+                                  color: Colors.transparent,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment
+                                        .start,
+                                    children: <Widget>[
+                                      Text("${snap.data!
+                                          .docs[0]['firstname']} ${snap.data!
+                                          .docs[0]['lastname']} ",
+                                        style: TextStyle(fontSize: 16),),
+                                      SizedBox(height: 6,),
+                                      StreamBuilder<QuerySnapshot>(
+                                        stream: FirebaseFirestore.instance
+                                            .collection("messages").where(
+                                            "idConversation",
+                                            isEqualTo: doc["id"]).orderBy(
+                                            "date").snapshots(),
+                                        builder: (context, snap2) {
+                                          var doc;
+                                          if (snap2.hasData) {
+                                            length =
+                                                snap2.data!.docs.length - 1;
+                                            if (length != -1) {
+                                              doc = snap2.data!.docs[length];
+                                              date = doc==null?doc["date"].toDate():DateTime.now();
+
+                                            }
+                                          }
+                                          return
+                                            snap2.hasData ? Row(
+                                              children: [
+                                                Text(
+                                                  length != -1 ? get_substring(
+                                                      doc["message"]) : "",
+                                                  style: TextStyle(fontSize: 13,
+                                                      color: Colors.grey
+                                                          .shade600,
+                                                      fontWeight: FontWeight
+                                                          .normal),),
+                                                Spacer(),
+                                                length != -1
+                                                    ? Text(
+                                                    "${get_date_string(date)}")
+                                                    : Text(""),
+                                                SizedBox(width: 5.0,)
+
+
+                                              ],
+                                            ) : Text("");
+                                        },
+                                      )
+
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                            ]
+                            ) : Text("");
+                          })
+                  );
+                }
+            ):Text("");
           }
       );
+
   }
+
+  String get_date_string(DateTime date) {
+    DateTime now = DateTime.now();
+    if (date.year == now.year && date.month == now.month &&
+        date.day == now.day) {
+      return "${date.hour}h${date.minute}";
+    }
+    else if (date.year == now.year && date.month == now.month &&
+        date.day == now.day - 1) {
+      return "Hier";
+    }
+    else {
+      return "${date.day}/${date.month}/${date.year}";
+    }
+  }
+
+
   String get_substring(String s){
     if(s.length>10){
       return s.substring(0,10);
@@ -297,6 +355,18 @@ class _Welcome_Coach extends State<Welcome_Coach> {
                           Text("${dateDebut.day}/${dateDebut.month}/${dateDebut.year} \n ${dateDebut.hour}:${dateDebut.minute}-${dateDebut.hour+snapshot.data?.docs[index]["duration"]}:${dateDebut.minute}"),
 
                           Spacer(),
+                          IconButton(
+                            onPressed: () async
+                            {
+                              if(!await ConversationService().conversation_exists(widget.coach, client)){
+                                await ConversationService().create_conversation(widget.coach, client);
+                              }
+                              Conversation conversation=await ConversationService().get_conversation(client, widget.coach);
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatScreenCoach(conversation:conversation )));
+                            },
+                            icon: Icon(Icons.message, color: Colors.black,),
+                          ),
+
                           snapshot.data?.docs[index]["isConfirmed"] == false ?
                           Wrap( children:
                           [
@@ -335,20 +405,6 @@ class _Welcome_Coach extends State<Welcome_Coach> {
                             )
                           ],)  :
                           snapshot.data?.docs[index]["isPaid"]?
-                          Wrap(
-                            children:[
-                              IconButton(
-                                onPressed: () async
-                                {
-                                  if(!await ConversationService().conversation_exists(widget.coach, client)){
-                                    await ConversationService().create_conversation(widget.coach, client);
-                                  }
-                                  Conversation conversation=await ConversationService().get_conversation(client, widget.coach);
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatScreenCoach(conversation:conversation )));
-                                },
-                                icon: Icon(Icons.message, color: Colors.black,),
-                              ),
-                              SizedBox(width: 5,),
                               ElevatedButton(
                                 onPressed: () async
                                 {
@@ -369,11 +425,9 @@ class _Welcome_Coach extends State<Welcome_Coach> {
                                 child: Text("Programme"),
                                 style: ElevatedButton.styleFrom(primary: Colors.green),
 
-                              ),
+                              )
 
-                            ],
-
-                          ):
+                          :
                           Text("En Attente de paiement"),
 
 

@@ -8,6 +8,8 @@ import 'package:prof_sport/models/Coach.dart';
 import 'package:bubble/bubble.dart';
 import 'package:prof_sport/models/Message.dart';
 import 'package:prof_sport/models/MessageService.dart';
+import 'package:prof_sport/validators.dart';
+import 'package:toast/toast.dart';
 
 import 'models/AuthImplementation.dart';
 import 'models/Conversation.dart';
@@ -78,7 +80,10 @@ class _ChatScreenState extends State<ChatScreenClient> {
                     ,
                   )
                   ,IconButton(onPressed: (){
-                    if(text!="") {
+                    if(!Validators().message_valid(text)){
+                      Toast.show("Vous ne pouvez pas envoyer de coordonnées personnelles",context,duration: Toast.LENGTH_LONG);
+                    }
+                    else if(text!="" ) {
                       MessageService().sendMessage(
                           widget.conversation.idClient, widget.conversation.idCoach,widget.conversation.id, text);
                     }

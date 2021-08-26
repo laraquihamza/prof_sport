@@ -56,65 +56,26 @@ class _ClientExercicesState extends State<ClientExercices> {
                                 children:[
                                   Text(doc!["name"]),
                                   Text(rep.toString()),
-                                  widget.reservation.isOver?
-                                  IgnorePointer(
-                                    child: DropdownButton<String>(
-                                      dropdownColor: Colors.grey,
-                                      value: state,
-                                      underline: Container(
-                                        height: 2,
-                                        color: Colors.blueAccent,
-                                      ),
-                                      onChanged: widget.reservation.isOver?(s){}:(String? newValue) {
-                                        setState(() {
-                                          state = newValue!;
+                                    !widget.reservation.isOver?Wrap(
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(Icons.check, color: doc["state"]=="Réussi"?Colors.green:Colors.grey,),
+                                        onPressed: ()async{
                                           ExerciceService().update_exercice(Exercice(id: doc["id"],
                                               idReservation: doc["idReservation"], picture: doc["picture"],
-                                              name: doc["name"], state: state, rep: doc["rep"]));
-                                        });
-                                      },
-
-                                      items:<String>["En Attente", "Réussi","Raté"]
-                                          .map<DropdownMenuItem<String>>((String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Text(
-                                            value,
-                                            style: TextStyle(color: Colors.grey),
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ):
-
-                                  DropdownButton<String>(
-                                    value: state,
-                                    underline: Container(
-                                      height: 2,
-                                      color: Colors.blueAccent,
-                                    ),
-                                    onChanged: widget.reservation.isOver?(s){}:(String? newValue) {
-                                      setState(() {
-                                        state = newValue!;
-                                        ExerciceService().update_exercice(Exercice(id: doc["id"],
-                                            idReservation: doc["idReservation"], picture: doc["picture"],
-                                            name: doc["name"], state: state, rep: doc["rep"]));
-                                      });
-                                    },
-
-                                    items:<String>["En Attente", "Réussi","Raté"]
-                                        .map<DropdownMenuItem<String>>((String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(
-                                          value,
-                                          style: TextStyle(color: Colors.blueAccent),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  )
-
-
+                                              name: doc["name"], state: "Réussi", rep: doc["rep"]));
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.close, color: doc["state"]=="Raté"?Colors.red:Colors.grey,),
+                                        onPressed: ()async{
+                                          ExerciceService().update_exercice(Exercice(id: doc["id"],
+                                              idReservation: doc["idReservation"], picture: doc["picture"],
+                                              name: doc["name"], state: "Raté", rep: doc["rep"]));
+                                        },
+                                      )
+                                    ],
+                                  ):Text(""),
                                 ],
                               ),
                               StreamBuilder(

@@ -110,6 +110,16 @@ class Validators {
       return false;
   }
 
+  bool message_valid(String message){
+    String pattern = r'((?:[+0]9)?[0-9]{10,12})';
+    String pattern2=r"[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
+    RegExp regExp = new RegExp(pattern);
+    RegExp regExp2 = RegExp(pattern2);
+    print("ddddd"+regExp2.allMatches(message).toString());
+    return !message.contains(regExp) && !message.contains(regExp2);
+
+  }
+
   // Messages Return For Toasts for each Exception //
 
   void toastException(String text, BuildContext context) {
