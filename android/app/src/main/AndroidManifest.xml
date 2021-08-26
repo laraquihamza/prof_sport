@@ -18,7 +18,7 @@
         </intent>
     </queries>
    <application
-        android:label="prof_sport"
+        android:label="Coachinow"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

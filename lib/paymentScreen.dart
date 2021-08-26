@@ -3,6 +3,7 @@ import 'package:flutter_credit_card/flutter_credit_card.dart';
 import 'package:prof_sport/models/Reservation.dart';
 import 'package:prof_sport/models/ReservationService.dart';
 
+import 'CustomAppBar.dart';
 import 'models/NotificationService.dart';
 
 class paymentScreen extends StatefulWidget {
@@ -24,8 +25,9 @@ class _paymentScreenState extends State<paymentScreen> {
    final GlobalKey<FormState> formKey= GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Wrap(
+    return Scaffold(
+      appBar: custom_appbar("Payment",context,false,false),
+      body: Column(
         children:
             [
               CreditCardWidget(
