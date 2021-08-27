@@ -115,18 +115,6 @@ class _SignupClient extends State<SignupClient> {
                   valid=false;
                   errors+="- Le nom saisi n'est pas valide\n";
                 }
-                if(!validators.isAdressValid(address.str)){
-                  valid=false;
-                  errors+="- Veuillez renseigner l'adresse\n";
-                }
-                if(!validators.isDocumentValid(imageUrl.str)){
-                  valid=false;
-                  errors+="- Veuillez selectionner une photo de profil\n";
-                }
-                if(!validators.isPhoneNumberValid(phonenumber.str)){
-                  valid=false;
-                  errors+="- Veuillez selectionner un numéro de téléphone valide\n";
-                }
                 if(await validators.isEmailAlreadyUsed(email.str)){
                   valid=false;
                   errors+="- L'adresse mail est déja utilisée \n";
@@ -137,7 +125,10 @@ class _SignupClient extends State<SignupClient> {
                   try{
                     await Auth().SignUpBig(email.str, password.str, firstname.str, lastname.str, city.str,
                         address.str, phonenumber.str,imageUrl.str, imc,img,height,weight,gender.str, birthdate!);
-                    await Auth().UploadDocument(imageUrl.str);
+                    if(imageUrl.str!=""){
+                      await Auth().UploadDocument(imageUrl.str);
+
+                    }
                     await Auth().SignIn(email.str, password.str);
                     Toast.show("Inscription réussie ", context,
                         duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);

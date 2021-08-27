@@ -152,31 +152,6 @@ Future<Null> uploadPicture() async{
                     valid=false;
                     errors+="- Le nom saisi n'est pas valide\n";
                   }
-                  if(!validators.isAdressValid(address.str)){
-                    valid=false;
-                    errors+="- Veuillez renseigner l'adresse\n";
-                  }
-                  if(!validators.isDocumentValid(imageUrl.str)){
-                    valid=false;
-                    errors+="- Veuillez selectionner une photo de profil\n";
-                  }
-                  if(!validators.isDocumentValid(cin.str)){
-                    valid=false;
-                    errors+="- Veuillez selectionner une CIN\n";
-                  }
-                  if(!validators.isDocumentValid(dip.str)){
-                    valid=false;
-                    errors+="- Veuillez selectionner un diplôme\n";
-                  }
-                  if(!validators.isDocumentValid(cv.str)){
-                    valid=false;
-                    errors+="- Veuillez selectionner un CV\n";
-                  }
-
-                  if(!validators.isPhoneNumberValid(phonenumber.str)){
-                    valid=false;
-                    errors+="- Veuillez selectionner un numéro de téléphone valide\n";
-                  }
                   if(await validators.isEmailAlreadyUsed(email.str)){
                     valid=false;
                     errors+="- L'adresse mail est déja utilisée \n";
@@ -187,7 +162,9 @@ Future<Null> uploadPicture() async{
                     try{
                       await Auth().SignUpBigCoach(email.str, password.str, firstname.str, lastname.str, city.str,
                           address.str, phonenumber.str, sport.str, tarif.str, dip.str,cin.str,cv.str, imageUrl.str, birthdate!);
-                      await Auth().UploadDocument(imageUrl.str);
+                      if(imageUrl.str!=""){
+                        await Auth().UploadDocument(imageUrl.str);
+                      }
                       await Auth().SignIn(email.str, password.str);
                       Toast.show("Inscription réussie ", context,
                           duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);

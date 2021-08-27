@@ -24,12 +24,11 @@ class SearchResult extends StatefulWidget {
 
 class _SearchResult extends State<SearchResult> {
   String url="";
-  late double average;
   Future<Null> getUrl(String path) async{
     url=await Auth().downloadURL(path);
   }
-  Future<Null> get_average(Coach coach) async{
-    average= await ReviewService().get_average(coach);
+  Future<double> get_average(Coach coach) async{
+    return await ReviewService().get_average(coach);
   }
 
   @override
@@ -84,7 +83,7 @@ class _SearchResult extends State<SearchResult> {
                       snapshot.data!.docs[index]["diplome"]
 
                       )), builder: (context,s){
-                          return Text(average==-1.0?" - ":average.toString());
+                          return Text(s.data==-1.0?" - ":(s.data! as double).toStringAsPrecision(2));
                         }),
 
                         //  Spacer(),
